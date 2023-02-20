@@ -5,6 +5,8 @@
 #include <gem.hpp>
 #include <iostream>
 
+// TODO: Make proper example
+
 int main()
 {
     std::cout << "VEC2 ==============" << std::endl;
@@ -31,6 +33,15 @@ int main()
         gem::vec2 horz(1.0f, 0.0f);
         gem::vec2 vert(0.0f, 1.0f);
         std::cout << gem::to_degrees(gem::angle(horz, vert)) << std::endl;
+
+        if (a != b)
+        {
+            std::cout << "a and b are different" << std::endl;
+        }
+        else
+        {
+            std::cout << "a and b are equal" << std::endl;
+        }
     }
 
     std::cout << "VEC3 ==============" << std::endl;

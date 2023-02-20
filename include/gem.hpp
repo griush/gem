@@ -5,8 +5,10 @@
 #ifndef GEM_H
 #define GEM_H
 
-#include <ostream>
+// std
 #include <cmath>
+#include <string>
+#include <ostream>
 
 #ifdef GEM_DOUBLE
 using precision_type = double;
@@ -167,6 +169,26 @@ namespace gem {
             return *this;
         }
 
+        bool operator==(const vec2& other)
+        {
+            return this->x == other.x and this->y == other.y;
+        }
+
+        bool operator!=(const vec2& other)
+        {
+            return !(this->x == other.x and this->y == other.y);
+        }
+
+        std::string to_string() const
+        {
+            std::string s = "(";
+            s += std::to_string(this->x);
+            s += ", ";
+            s += std::to_string(this->y);
+            s += ")";
+            return s;
+        }
+
         friend std::ostream& operator<<(std::ostream& os, const vec2& vec) {
             os << "(" << vec.x << ", " << vec.y << ")";
             return os;
@@ -325,6 +347,28 @@ namespace gem {
         {
             this->divide(other);
             return *this;
+        }
+
+        bool operator==(const vec3& other)
+        {
+            return this->x == other.x and this->y == other.y && this->z == other.z;
+        }
+
+        bool operator!=(const vec3& other)
+        {
+            return !(this->x == other.x and this->y == other.y && this->z == other.z);
+        }
+
+        std::string to_string() const
+        {
+            std::string s = "(";
+            s += std::to_string(this->x);
+            s += ", ";
+            s += std::to_string(this->y);
+            s += ", ";
+            s += std::to_string(this->z);
+            s += ")";
+            return s;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const vec3& vec) {
@@ -496,6 +540,30 @@ namespace gem {
         {
             this->divide(other);
             return *this;
+        }
+
+        bool operator==(const vec4& other)
+        {
+            return this->x == other.x and this->y == other.y && this->z == other.z && this->w == other.w;
+        }
+
+        bool operator!=(const vec4& other)
+        {
+            return !(this->x == other.x and this->y == other.y && this->z == other.z && this->w == other.w);
+        }
+
+        std::string to_string() const
+        {
+            std::string s = "(";
+            s += std::to_string(this->x);
+            s += ", ";
+            s += std::to_string(this->y);
+            s += ", ";
+            s += std::to_string(this->z);
+            s += ", ";
+            s += std::to_string(this->w);
+            s += ")";
+            return s;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const vec4& vec) {
