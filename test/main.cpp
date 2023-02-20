@@ -69,10 +69,14 @@ int main()
         std::cout << a << " " << b << " " << c << std::endl;
     }
 
+    std::cout << "MAT4 ==============" << std::endl;
     {
         // mat4 test
         gem::mat4 ortho_camera = gem::mat4::orthographic(-1.6f, 1.6f, -0.9f, 0.9f);
         gem::mat4 perspective_camera = gem::mat4::perspective(60.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+
+        gem::mat4 scale = gem::mat4::scale({2.5f, 3.0f, 4.0f});
+        std::cout << ortho_camera.to_string() << std::endl;
     }
 
     return 0;
