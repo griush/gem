@@ -10,6 +10,7 @@
 #include <string>
 #include <ostream>
 
+// TODO: Review this, not all types should be precision_type 
 #ifdef GEM_DOUBLE
 using precision_type = double;
 #else
@@ -31,7 +32,28 @@ namespace gem {
         return radians * GEM_RAD_TO_DEG;
     }
 
+    precision_type inverse(precision_type val)
+    {
+        return 1 / val;
+    }
+
+    precision_type max(precision_type a, precision_type b)
+    {
+        return a > b ? a : b;
+    }
+
+    precision_type min(precision_type a, precision_type b)
+    {
+        return a < b ? a : b;
+    }
+
+    precision_type clamp(precision_type val, precision_type min, precision_type max)
+    {
+        return min(max(val, min), max);
+    }
+
     // Vectors
+    // TODO: vector size
     // vec2
     // Two-component vector
     struct vec2
@@ -649,6 +671,157 @@ namespace gem {
         precision_type angleCos = dot(first, second) / (first.magnitude() * second.magnitude());
         return acos(angleCos);
     }
+
+    // Matrices
+    // TODO: matrix size
+    // mat4
+    // 4x4 matrix
+    struct mat4
+    {
+        // Data
+        union
+        {
+            precision_type elements[4 * 4];
+            vec4 columns[4];
+        };
+
+        mat4()
+        {
+            for (int i = 0; i < 4 * 4; i++)
+                elements[i] = 0.0f;
+        }
+
+        mat4(precision_type diagonal)
+        {
+            // Initialize all elements to 0
+            for (int i = 0; i < 4 * 4; i++)
+                elements[i] = 0.0f;
+
+            // Set the diagonal
+            elements[0 + 0 * 4] = diagonal;
+            elements[1 + 1 * 4] = diagonal;
+            elements[2 + 2 * 4] = diagonal;
+            elements[3 + 3 * 4] = diagonal;
+        }
+
+        static mat4 identiy()
+        {
+            return mat4(1.0f);
+        }
+
+        mat4& multiply(const mat4& other)
+        {
+            for (int y = 0; y < 4; y++)
+            {
+                for (int x = 0; x < 4; x++)
+                {
+                    float sum = 0.0f;
+                    for (int e = 0; e < 4; e++)
+                    {
+                        sum += elements[x + e * 4] * other.elements[e + y * 4];
+                    }
+                    elements[x + y * 4] = sum;
+                }
+            }
+    
+            return *this;
+        }
+
+        mat4& operator*(const mat4& other)
+        {
+            this->multiply(other);
+            return *this;
+        }
+
+        mat4& operator*=(const mat4& other)
+        {
+            this->multiply(other);
+            return *this;
+        }
+
+        // Templates
+        static mat4 orthographic(precision_type left, precision_type right, precision_type bottom, precision_type top, precision_type near = -1.0f, precision_type far = 1.0f)
+        {
+            mat4 result(1.0f);
+            result.elements[0 + 0 * 4] = 2 / (right - left);
+            result.elements[1 + 1 * 4] = 2 / (top - bottom);
+            result.elements[2 + 2 * 4] = -2 / (far - near);
+
+            result.elements[3 + 0 * 4] = - (right + left) / (right - left);
+            result.elements[3 + 1 * 4] = - (top + bottom) / (top - bottom);
+            result.elements[3 + 2 * 4] = - (far + near) / (far - near);
+
+            return result;
+        }
+
+        // FOV in degrees
+        static mat4 perspective(precision_type fov, precision_type aspect_ratio, precision_type zNear, precision_type zFar)
+        {
+            precision_type a = aspect_ratio * tan(to_radians(fov * 0.5f));
+            precision_type b = tan(to_radians(fov * 0.5f));
+
+            precision_type c = (-zNear - zFar) / (zNear - zFar);
+            precision_type d = (2 * zNear * zFar) / (zNear - zFar);
+
+            mat4 result(0.0f);
+            result.elements[0 + 0 * 4] = inverse(a);
+            result.elements[1 + 1 * 4] = inverse(b);
+            result.elements[2 + 2 * 4] = c;
+            result.elements[3 + 2 * 4] = d;
+            result.elements[2 + 3 * 4] = 1.0f;
+
+            return result;
+        }
+
+        static mat4 translate(const vec3& translation)
+        {
+            mat4 result(1.0f);
+            result.elements[3 + 0 * 4] = translation.x;
+            result.elements[3 + 1 * 4] = translation.y;
+            result.elements[3 + 2 * 4] = translation.z;
+
+            return result;
+        }
+
+        static mat4 rotation(const vec3& axis, precision_type angle)
+        {
+            mat4 result(1.0f);
+
+            float r = toRadians(angle);
+            float c = cos(r);
+            float s = sin(r);
+            float omc = 1.0f - c;
+    
+            float x = axis.x;
+            float y = axis.y;
+            float z = axis.z;
+    
+            result.elements[0 + 0 * 4] = x * x * omc + c;
+            result.elements[0 + 1 * 4] = y * x * omc + z * s;
+            result.elements[0 + 2 * 4] = x * z * omc - y * s;
+    
+            result.elements[1 + 0 * 4] = x * y * omc - z * s;
+            result.elements[1 + 1 * 4] = y * y * omc + c;
+            result.elements[1 + 2 * 4] = y * z * omc + x * s;
+    
+            result.elements[2 + 0 * 4] = x * z * omc + y * s;
+            result.elements[2 + 1 * 4] = y * z * omc - x * s;
+            result.elements[2 + 2 * 4] = z * z * omc + c;
+    
+            return result;
+        }
+
+        static mat4 scale(const vec3& scale)
+        {
+            mat4 result(1.0f);
+            result.elements[0 + 0 * 4] = scale.x;
+            result.elements[1 + 1 * 4] = scale.y;
+            result.elements[2 + 2 * 4] = scale.z;
+
+            return result;
+        }
+
+    }; // mat4
 }
 
 #endif // GEM_H
