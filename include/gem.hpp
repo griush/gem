@@ -120,6 +120,11 @@ namespace gem {
             return result;
         }
 
+        vec2* value_ptr()
+        {
+            return &(*this);
+        }
+
         // Operators
         vec2& operator+(const vec2& other)
         {
@@ -298,6 +303,11 @@ namespace gem {
         {
             precision_type result = this->x * other.x + this->y * other.y + this->z * other.z;
             return result;
+        }
+
+        vec3* value_ptr()
+        {
+            return &(*this);
         }
 
         // Operators
@@ -491,6 +501,11 @@ namespace gem {
         {
             precision_type result = this->x * other.x + this->y * other.y + this->z * other.z + this->w * other.w;
             return result;
+        }
+
+        vec4* value_ptr()
+        {
+            return &(*this);
         }
 
         // Operators

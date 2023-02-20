@@ -42,6 +42,10 @@ int main()
         {
             std::cout << "a and b are equal" << std::endl;
         }
+
+        gem::vec2* a_ptr = a.value_ptr();
+        a_ptr->add(b);
+        std::cout << a_ptr->to_string() << std::endl;
     }
 
     std::cout << "VEC3 ==============" << std::endl;
