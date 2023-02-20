@@ -8,6 +8,7 @@
 // std
 #include <cmath>
 #include <string>
+#include <sstream>
 #include <ostream>
 
 // TODO: Review this, not all types should be precision_type 
@@ -22,6 +23,7 @@ using precision_type = float;
 
 namespace gem {
 
+    // General functions
     precision_type to_radians(precision_type degrees)
     {
         return degrees * GEM_DEG_TO_RAD;
@@ -42,18 +44,27 @@ namespace gem {
         return a > b ? a : b;
     }
 
+    precision_type max(precision_type a, precision_type b, precision_type c)
+    {
+        return max(max(a, b), c);
+    }
+
     precision_type min(precision_type a, precision_type b)
     {
         return a < b ? a : b;
     }
 
-    precision_type clamp(precision_type val, precision_type min, precision_type max)
+    precision_type min(precision_type a, precision_type b, precision_type c)
     {
-        return min(max(val, min), max);
+        return min(min(a, b), c);
+    }
+
+    precision_type clamp(precision_type val, precision_type min_val, precision_type max_val)
+    {
+        return min(max(val, min_val), max_val);
     }
 
     // Vectors
-    // TODO: vector size
     // vec2
     // Two-component vector
     struct vec2
@@ -208,12 +219,10 @@ namespace gem {
 
         std::string to_string() const
         {
-            std::string s = "(";
-            s += std::to_string(this->x);
-            s += ", ";
-            s += std::to_string(this->y);
-            s += ")";
-            return s;
+            std::stringstream s;
+            s << "(" << this->x << ", " << this->y << ")";
+
+            return s.str();
         }
 
         friend std::ostream& operator<<(std::ostream& os, const vec2& vec) {
@@ -241,6 +250,12 @@ namespace gem {
                 precision_type r;
                 precision_type g;
                 precision_type b;
+            };
+            struct
+            {
+                precision_type h;
+                precision_type s;
+                precision_type v;
             };
         };
         
@@ -393,14 +408,10 @@ namespace gem {
 
         std::string to_string() const
         {
-            std::string s = "(";
-            s += std::to_string(this->x);
-            s += ", ";
-            s += std::to_string(this->y);
-            s += ", ";
-            s += std::to_string(this->z);
-            s += ")";
-            return s;
+            std::stringstream s;
+            s << "(" << this->x << ", " << this->y << ", " << this->z << ")";
+
+            return s.str();
         }
 
         friend std::ostream& operator<<(std::ostream& os, const vec3& vec) {
@@ -591,16 +602,10 @@ namespace gem {
 
         std::string to_string() const
         {
-            std::string s = "(";
-            s += std::to_string(this->x);
-            s += ", ";
-            s += std::to_string(this->y);
-            s += ", ";
-            s += std::to_string(this->z);
-            s += ", ";
-            s += std::to_string(this->w);
-            s += ")";
-            return s;
+            std::stringstream s;
+            s << "(" << this->x << ", " << this->y << ", " << this->z << ", " << this->w << ")";
+
+            return s.str();
         }
 
         friend std::ostream& operator<<(std::ostream& os, const vec4& vec) {
@@ -618,6 +623,146 @@ namespace gem {
 #endif
 
     // Vector general operation
+
+    // Color conversions
+    color3 rgb_to_normalized(const color3& color)
+    {
+        vec3 c(color);
+        c.r /= 255.0f;
+        c.g /= 255.0f;
+        c.b /= 255.0f;
+        return c;
+    }
+
+    color4 rgb_to_normalized(const color4& color)
+    {
+        vec4 c(color);
+        c.r /= 255.0f;
+        c.g /= 255.0f;
+        c.b /= 255.0f;
+        c.a /= 255.0f;
+        return c;
+    }
+
+    color3 normalized_to_rgb(const color3& color)
+    {
+        vec3 c(color);
+        c.r *= 255.0f;
+        c.g *= 255.0f;
+        c.b *= 255.0f;
+        return c;
+    }
+
+    color4 normalized_to_rgb(const color4& color)
+    {
+        vec4 c(color);
+        c.r *= 255.0f;
+        c.g *= 255.0f;
+        c.b *= 255.0f;
+        c.a *= 255.0f;
+        return c;
+    }
+
+    color3 rgb_to_hsv(const color3& color)
+    {
+        // Convert RGB to [0, 1] range
+        vec3 norm = rgb_to_normalized(color);
+
+        // Find min and max components of RGB
+        precision_type cmin = min(norm.r, norm.g, norm.b);
+        precision_type cmax = max(norm.r, norm.g, norm.b);
+
+        // Compute value (V) of HSV
+        precision_type v = cmax;
+        precision_type s = 0;
+        precision_type h = 0;
+        // Compute saturation (S) of HSV
+        if (v == 0) {
+            s = 0;
+        } else {
+            s = (v - cmin) / v;
+        }
+
+        // Compute hue (H) of HSV
+        if (cmax == cmin) {
+            h = 0;
+        } else if (cmax == norm.r) {
+            h = (norm.g - norm.b) / (cmax - cmin);
+        } else if (cmax == norm.g) {
+            h = 2 + (norm.b - norm.r) / (cmax - cmin);
+        } else {
+            h = 4 + (norm.r - norm.g) / (cmax - cmin);
+        }
+
+        h *= 60;
+        if (h < 0) {
+            h += 360;
+        }
+
+        return color3(h, s, v);
+    }
+
+    color3 hsv_to_rgb(const color3& color)
+    {
+        // From stackoverflow
+        double      hh, p, q, t, ff;
+        long        i;
+        color3      out;
+
+        if(color.s <= 0.0) {       // < is bogus, just shuts up warnings
+            out.r = color.v;
+            out.g = color.v;
+            out.b = color.v;
+            return out;
+        }
+        hh = color.h;
+        if(hh >= 360.0) hh = 0.0;
+        hh /= 60.0;
+        i = (long)hh;
+        ff = hh - i;
+        p = color.v * (1.0 - color.s);
+        q = color.v * (1.0 - (color.s * ff));
+        t = color.v * (1.0 - (color.s * (1.0 - ff)));
+
+        switch(i) {
+        case 0:
+            out.r = color.v;
+            out.g = t;
+            out.b = p;
+            break;
+        case 1:
+            out.r = q;
+            out.g = color.v;
+            out.b = p;
+            break;
+        case 2:
+            out.r = p;
+            out.g = color.v;
+            out.b = t;
+            break;
+
+        case 3:
+            out.r = p;
+            out.g = q;
+            out.b = color.v;
+            break;
+        case 4:
+            out.r = t;
+            out.g = p;
+            out.b = color.v;
+            break;
+        case 5:
+        default:
+            out.r = color.v;
+            out.g = p;
+            out.b = q;
+            break;
+        }
+
+        out = normalized_to_rgb(out);
+        return out;
+    }
+
     // vec2
     precision_type dot(const vec2& first, const vec2& second)
     {
@@ -727,6 +872,151 @@ namespace gem {
             return *this;
         }
 
+        precision_type determinant() const
+        {
+            precision_type a = elements[0], b = elements[1], c = elements[2], d = elements[3];
+            precision_type e = elements[4], f = elements[5], g = elements[6], h = elements[7];
+            precision_type i = elements[8], j = elements[9], k = elements[10], l = elements[11];
+            precision_type m = elements[12], n = elements[13], o = elements[14], p = elements[15];
+
+            precision_type det = 
+                a * f * k * p + a * g * l * n + a * h * j * o
+                - a * f * l * o - a * g * j * p - a * h * k * n
+                - b * e * k * p - b * g * l * m - b * h * i * o
+                + b * e * l * o + b * g * i * p + b * h * k * m
+                + c * e * j * p + c * f * l * m + c * h * i * n
+                - c * e * l * n - c * f * i * p - c * h * j * m
+                - d * e * j * o - d * f * k * m - d * g * i * n
+                + d * e * k * n + d * f * i * o + d * g * j * m;
+
+            return det;
+        }
+
+        mat4& inverse() // From sparky engine
+        {
+            float temp[16];
+
+            temp[0] = elements[5] * elements[10] * elements[15] -
+                elements[5] * elements[11] * elements[14] -
+                elements[9] * elements[6] * elements[15] +
+                elements[9] * elements[7] * elements[14] +
+                elements[13] * elements[6] * elements[11] -
+                elements[13] * elements[7] * elements[10];
+
+            temp[4] = -elements[4] * elements[10] * elements[15] +
+                elements[4] * elements[11] * elements[14] +
+                elements[8] * elements[6] * elements[15] -
+                elements[8] * elements[7] * elements[14] -
+                elements[12] * elements[6] * elements[11] +
+                elements[12] * elements[7] * elements[10];
+
+            temp[8] = elements[4] * elements[9] * elements[15] -
+                elements[4] * elements[11] * elements[13] -
+                elements[8] * elements[5] * elements[15] +
+                elements[8] * elements[7] * elements[13] +
+                elements[12] * elements[5] * elements[11] -
+                elements[12] * elements[7] * elements[9];
+
+            temp[12] = -elements[4] * elements[9] * elements[14] +
+                elements[4] * elements[10] * elements[13] +
+                elements[8] * elements[5] * elements[14] -
+                elements[8] * elements[6] * elements[13] -
+                elements[12] * elements[5] * elements[10] +
+                elements[12] * elements[6] * elements[9];
+
+            temp[1] = -elements[1] * elements[10] * elements[15] +
+                elements[1] * elements[11] * elements[14] +
+                elements[9] * elements[2] * elements[15] -
+                elements[9] * elements[3] * elements[14] -
+                elements[13] * elements[2] * elements[11] +
+                elements[13] * elements[3] * elements[10];
+
+            temp[5] = elements[0] * elements[10] * elements[15] -
+                elements[0] * elements[11] * elements[14] -
+                elements[8] * elements[2] * elements[15] +
+                elements[8] * elements[3] * elements[14] +
+                elements[12] * elements[2] * elements[11] -
+                elements[12] * elements[3] * elements[10];
+
+            temp[9] = -elements[0] * elements[9] * elements[15] +
+                elements[0] * elements[11] * elements[13] +
+                elements[8] * elements[1] * elements[15] -
+                elements[8] * elements[3] * elements[13] -
+                elements[12] * elements[1] * elements[11] +
+                elements[12] * elements[3] * elements[9];
+
+            temp[13] = elements[0] * elements[9] * elements[14] -
+                elements[0] * elements[10] * elements[13] -
+                elements[8] * elements[1] * elements[14] +
+                elements[8] * elements[2] * elements[13] +
+                elements[12] * elements[1] * elements[10] -
+                elements[12] * elements[2] * elements[9];
+
+            temp[2] = elements[1] * elements[6] * elements[15] -
+                elements[1] * elements[7] * elements[14] -
+                elements[5] * elements[2] * elements[15] +
+                elements[5] * elements[3] * elements[14] +
+                elements[13] * elements[2] * elements[7] -
+                elements[13] * elements[3] * elements[6];
+
+            temp[6] = -elements[0] * elements[6] * elements[15] +
+                elements[0] * elements[7] * elements[14] +
+                elements[4] * elements[2] * elements[15] -
+                elements[4] * elements[3] * elements[14] -
+                elements[12] * elements[2] * elements[7] +
+                elements[12] * elements[3] * elements[6];
+
+            temp[10] = elements[0] * elements[5] * elements[15] -
+                elements[0] * elements[7] * elements[13] -
+                elements[4] * elements[1] * elements[15] +
+                elements[4] * elements[3] * elements[13] +
+                elements[12] * elements[1] * elements[7] -
+                elements[12] * elements[3] * elements[5];
+
+            temp[14] = -elements[0] * elements[5] * elements[14] +
+                elements[0] * elements[6] * elements[13] +
+                elements[4] * elements[1] * elements[14] -
+                elements[4] * elements[2] * elements[13] -
+                elements[12] * elements[1] * elements[6] +
+                elements[12] * elements[2] * elements[5];
+
+            temp[3] = -elements[1] * elements[6] * elements[11] +
+                elements[1] * elements[7] * elements[10] +
+                elements[5] * elements[2] * elements[11] -
+                elements[5] * elements[3] * elements[10] -
+                elements[9] * elements[2] * elements[7] +
+                elements[9] * elements[3] * elements[6];
+
+            temp[7] = elements[0] * elements[6] * elements[11] -
+                elements[0] * elements[7] * elements[10] -
+                elements[4] * elements[2] * elements[11] +
+                elements[4] * elements[3] * elements[10] +
+                elements[8] * elements[2] * elements[7] -
+                elements[8] * elements[3] * elements[6];
+
+            temp[11] = -elements[0] * elements[5] * elements[11] +
+                elements[0] * elements[7] * elements[9] +
+                elements[4] * elements[1] * elements[11] -
+                elements[4] * elements[3] * elements[9] -
+                elements[8] * elements[1] * elements[7] +
+                elements[8] * elements[3] * elements[5];
+
+            temp[15] = elements[0] * elements[5] * elements[10] -
+                elements[0] * elements[6] * elements[9] -
+                elements[4] * elements[1] * elements[10] +
+                elements[4] * elements[2] * elements[9] +
+                elements[8] * elements[1] * elements[6] -
+                elements[8] * elements[2] * elements[5];
+
+            float determinant = elements[0] * temp[0] + elements[1] * temp[4] + elements[2] * temp[8] + elements[3] * temp[12];
+            determinant = 1.0f / determinant;
+
+            for (int i = 0; i < 4 * 4; i++)
+                elements[i] = temp[i] * determinant;
+
+            return *this;
+        }
+
         mat4& operator*(const mat4& other)
         {
             this->multiply(other);
@@ -764,8 +1054,8 @@ namespace gem {
             precision_type d = (2 * zNear * zFar) / (zNear - zFar);
 
             mat4 result(0.0f);
-            result.elements[0 + 0 * 4] = inverse(a);
-            result.elements[1 + 1 * 4] = inverse(b);
+            result.elements[0 + 0 * 4] = gem::inverse(a);
+            result.elements[1 + 1 * 4] = gem::inverse(b);
             result.elements[2 + 2 * 4] = c;
             result.elements[3 + 2 * 4] = d;
             result.elements[2 + 3 * 4] = 1.0f;
@@ -787,7 +1077,7 @@ namespace gem {
         {
             mat4 result(1.0f);
 
-            float r = toRadians(angle);
+            float r = to_radians(angle);
             float c = cos(r);
             float s = sin(r);
             float omc = 1.0f - c;
@@ -819,6 +1109,17 @@ namespace gem {
             result.elements[2 + 2 * 4] = scale.z;
 
             return result;
+        }
+
+        std::string to_string() const
+        {
+            std::stringstream s;
+            s << columns[0].to_string() << "\n" <<
+                columns[1].to_string() << "\n" <<
+                columns[2].to_string() << "\n" <<
+                columns[3].to_string() << "\n";
+
+            return s.str();
         }
 
     }; // mat4

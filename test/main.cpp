@@ -79,5 +79,14 @@ int main()
         std::cout << ortho_camera.to_string() << std::endl;
     }
 
+    std::cout << "COLOR CONVERSIONS ==============" << std::endl;
+    {
+        gem::color3 red(255.0f, 130.0f, 0.0f);
+        gem::color3 hsvRed = gem::rgb_to_hsv(red);
+        std::cout << hsvRed << std::endl;
+        red = gem::hsv_to_rgb(hsvRed);
+        std::cout << red << std::endl;
+    }
+
     return 0;
 }
