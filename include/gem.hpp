@@ -10,6 +10,7 @@
 #include <string>
 #include <sstream>
 #include <ostream>
+#include <format>
 
 // TODO: Review this, not all types should be precision_type 
 #ifdef GEM_DOUBLE
@@ -207,26 +208,23 @@ namespace gem {
             return *this;
         }
 
-        bool operator==(const vec2& other)
+        friend bool operator==(const vec2& left, const vec2& right)
         {
-            return this->x == other.x and this->y == other.y;
+            return left.x == right.x and left.y == right.y;
         }
 
-        bool operator!=(const vec2& other)
+        friend bool operator!=(const vec2& left, const vec2& right)
         {
-            return !(this->x == other.x and this->y == other.y);
+            return !(left.x == right.x and left.y == right.y);
         }
 
         std::string to_string() const
         {
-            std::stringstream s;
-            s << "(" << this->x << ", " << this->y << ")";
-
-            return s.str();
+            return std::format("({}, {})", this->x, this->y);
         }
 
         friend std::ostream& operator<<(std::ostream& os, const vec2& vec) {
-            os << "(" << vec.x << ", " << vec.y << ")";
+            os << vec.to_string();
             return os;
         }
 
@@ -408,14 +406,11 @@ namespace gem {
 
         std::string to_string() const
         {
-            std::stringstream s;
-            s << "(" << this->x << ", " << this->y << ", " << this->z << ")";
-
-            return s.str();
+            return std::format("({}, {}, {})", this->x, this->y, this->z);
         }
 
         friend std::ostream& operator<<(std::ostream& os, const vec3& vec) {
-            os << "(" << vec.x << ", " << vec.y << ", "<< vec.z << ")";
+            os << vec.to_string();
             return os;
         }
 
@@ -602,14 +597,11 @@ namespace gem {
 
         std::string to_string() const
         {
-            std::stringstream s;
-            s << "(" << this->x << ", " << this->y << ", " << this->z << ", " << this->w << ")";
-
-            return s.str();
+            return std::format("({}, {}, {}, {})", this->x, this->y, this->z, this->w);
         }
 
         friend std::ostream& operator<<(std::ostream& os, const vec4& vec) {
-            os << "(" << vec.x << ", " << vec.y << ", "<< vec.z << ", " << vec.w << ")";
+            os << vec.to_string();
             return os;
         }
 
@@ -892,7 +884,7 @@ namespace gem {
             return det;
         }
 
-        mat4& inverse() // From sparky engine
+        mat4& invert() // From sparky engine
         {
             float temp[16];
 
@@ -1113,13 +1105,14 @@ namespace gem {
 
         std::string to_string() const
         {
-            std::stringstream s;
-            s << columns[0].to_string() << "\n" <<
-                columns[1].to_string() << "\n" <<
-                columns[2].to_string() << "\n" <<
-                columns[3].to_string() << "\n";
+            return std::format("{}\n{}\n{}\n{}", columns[0].to_string(), columns[1].to_string(), columns[2].to_string(), columns[3].to_string());
+            return std::string();
+        }
 
-            return s.str();
+        friend std::ostream& operator<<(std::ostream& os, const mat4& mat)
+        {
+            os << mat.to_string();
+            return os;
         }
 
     }; // mat4

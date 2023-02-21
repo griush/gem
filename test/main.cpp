@@ -76,7 +76,7 @@ int main()
         gem::mat4 perspective_camera = gem::mat4::perspective(60.0f, 16.0f / 9.0f, 0.1f, 100.0f);
 
         gem::mat4 scale = gem::mat4::scale({2.5f, 3.0f, 4.0f});
-        std::cout << ortho_camera.to_string() << std::endl;
+        std::cout << ortho_camera << std::endl;
     }
 
     std::cout << "COLOR CONVERSIONS ==============" << std::endl;
