@@ -94,5 +94,12 @@ int main()
         std::cout << red << std::endl;
     }
 
+    std::cout << "GEOMETRY ==============" << std::endl;
+    {
+        gem::vec2 pointA(0.9f, 0.0f);
+        gem::vec2 pointB(0.9f, 1.0f);
+        std::cout << gem::point_in_circle(pointA, { 1.0f, { 0.0f, 0.0f } }) << std::endl;
+    }
+
     return 0;
 }

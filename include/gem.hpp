@@ -12,6 +12,15 @@
 #include <ostream>
 #include <format>
 
+#define GEM_DEBUG 0
+
+#if GEM_DEBUG
+#include <iostream>
+#define GEM_LOG(x) std::cout << x << std::endl;
+#else
+#define GEM_LOG(x)
+#endif
+
 // TODO: Review this, not all types should be precision_type 
 #ifdef GEM_DOUBLE
 using precision_type = double;
@@ -160,28 +169,24 @@ namespace gem {
         }
 
         // Operators
-        vec2& operator+(const vec2& other)
+        friend vec2 operator+(vec2 left, const vec2& right)
         {
-            this->add(other);
-            return *this;
+            return left.add(right);
         }
 
-        vec2& operator-(const vec2& other)
+        friend vec2 operator-(vec2 left, const vec2& right)
         {
-            this->substract(other);
-            return *this;
+            return left.substract(right);
         }
 
-        vec2& operator*(const vec2& other)
+        friend vec2 operator*(vec2 left, const vec2& right)
         {
-            this->multiply(other);
-            return *this;
+            return left.multiply(right);
         }
 
-        vec2& operator/(const vec2& other)
+        friend vec2 operator/(vec2 left, const vec2& right)
         {
-            this->divide(other);
-            return *this;
+            return left.divide(right);
         }
 
         vec2& operator+=(const vec2& other)
@@ -346,28 +351,24 @@ namespace gem {
         }
 
         // Operators
-        vec3& operator+(const vec3& other)
+        friend vec3 operator+(vec3 left, const vec3& right)
         {
-            this->add(other);
-            return *this;
+            return left.add(right);
         }
 
-        vec3& operator-(const vec3& other)
+        friend vec3 operator-(vec3 left, const vec3& right)
         {
-            this->substract(other);
-            return *this;
+            return left.substract(right);
         }
 
-        vec3& operator*(const vec3& other)
+        friend vec3 operator*(vec3 left, const vec3& right)
         {
-            this->multiply(other);
-            return *this;
+            return left.multiply(right);
         }
 
-        vec3& operator/(const vec3& other)
+        friend vec3 operator/(vec3 left, const vec3& right)
         {
-            this->divide(other);
-            return *this;
+            return left.divide(right);
         }
 
         vec3& operator+=(const vec3& other)
@@ -537,28 +538,25 @@ namespace gem {
         }
 
         // Operators
-        vec4& operator+(const vec4& other)
+        friend vec4 operator+(vec4 left, const vec4& right)
         {
-            this->add(other);
-            return *this;
+            return left.add(right);
         }
 
-        vec4& operator-(const vec4& other)
+
+        friend vec4 operator-(vec4 left, const vec4& right)
         {
-            this->substract(other);
-            return *this;
+            return left.substract(right);
         }
 
-        vec4& operator*(const vec4& other)
+        friend vec4 operator*(vec4 left, const vec4& right)
         {
-            this->multiply(other);
-            return *this;
+            return left.multiply(right);
         }
 
-        vec4& operator/(const vec4& other)
+        friend vec4 operator/(vec4 left, const vec4& right)
         {
-            this->divide(other);
-            return *this;
+            return left.divide(right);
         }
 
         vec4& operator+=(const vec4& other)
@@ -609,12 +607,45 @@ namespace gem {
 
     // Aliases
 #ifndef GEM_DISABLE_ALIASES
-    using pos = vec3;
     using color3 = vec3;
     using color4 = vec4;
 #endif
 
     // Vector general operation
+    // Geometry
+
+    struct circle
+    {
+        precision_type radius 1.0f;
+        vec2 position = vec2(0.0f);
+    };
+
+    struct sphere
+    {
+        precision_type radius = 1.0f;
+        vec3 position = vec3(0.0f);
+    };
+
+    precision_type distance(const vec2& a, const vec2& b)
+    {
+        GEM_LOG(a - b);
+        return (a - b).magnitude();
+    }
+
+    precision_type distance(const vec3& a, const vec3& b)
+    {
+        return (a - b).magnitude();
+    }
+
+    bool point_in_circle(const vec2& point, const circle& circle)
+    {
+        return distance(point, circle.position) <= circle.radius;
+    }
+
+    bool point_in_sphere(const vec3& point, const sphere& sphere)
+    {
+        return distance(point, sphere.position) <= sphere.radius;
+    }
 
     // Color conversions
     color3 rgb_to_normalized(const color3& color)
