@@ -21,17 +21,17 @@
 #define GEM_LOG(x)
 #endif
 
-// TODO: Review this, not all types should be precision_type 
-#ifdef GEM_DOUBLE
-using precision_type = double;
-#else
-using precision_type = float;
-#endif
-
 #define GEM_DEG_TO_RAD 0.017453229252
 #define GEM_RAD_TO_DEG 57.29577951
 
 namespace gem {
+
+    // TODO: Review this, not all types should be precision_type 
+#ifdef GEM_DOUBLE
+    using precision_type = double;
+#else
+    using precision_type = float;
+#endif
 
     // General functions
     precision_type to_radians(precision_type degrees)
@@ -616,13 +616,13 @@ namespace gem {
 
     struct circle
     {
-        precision_type radius 1.0f;
+        float radius = 1.0f;
         vec2 position = vec2(0.0f);
     };
 
     struct sphere
     {
-        precision_type radius = 1.0f;
+        float radius = 1.0f;
         vec3 position = vec3(0.0f);
     };
 
@@ -645,6 +645,16 @@ namespace gem {
     bool point_in_sphere(const vec3& point, const sphere& sphere)
     {
         return distance(point, sphere.position) <= sphere.radius;
+    }
+
+    bool circle_in_circle(const circle& a, const circle& b)
+    {
+        return distance(a.position, b.position) <= a.radius + b.radius;
+    }
+
+    bool sphere_in_sphere(const sphere& a, const sphere& b)
+    {
+        return distance(a.position, b.position) <= a.radius + b.radius;
     }
 
     // Color conversions
@@ -841,7 +851,6 @@ namespace gem {
     }
 
     // Matrices
-    // TODO: matrix size
     // mat4
     // 4x4 matrix
     struct mat4
@@ -1154,6 +1163,7 @@ namespace gem {
         }
 
     }; // mat4
+
 }
 
 #endif // GEM_H
