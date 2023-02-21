@@ -77,6 +77,12 @@ int main()
 
         gem::mat4 scale = gem::mat4::scale({2.5f, 3.0f, 4.0f});
         std::cout << ortho_camera << std::endl;
+
+        gem::mat4 i = gem::mat4::translate({1.0f, 2.5f, -3.0f});
+        std::cout << i << std::endl;
+        std::cout << gem::mat4::inverse(i) << std::endl;
+        i.invert();
+        std::cout << i << std::endl;
     }
 
     std::cout << "COLOR CONVERSIONS ==============" << std::endl;

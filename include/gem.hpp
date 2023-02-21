@@ -1009,6 +1009,13 @@ namespace gem {
             return *this;
         }
 
+        static mat4 inverse(const mat4& mat)
+        {
+            mat4 result = mat;
+            result.invert();
+            return result;
+        }
+
         mat4& operator*(const mat4& other)
         {
             this->multiply(other);
