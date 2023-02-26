@@ -1,5 +1,5 @@
 # gem
-Maths library form Game Engines 
+Maths library for Game Engines 
 
 # Notes
 `gem` requires at least `C++20`.
