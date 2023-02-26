@@ -29,6 +29,8 @@ int main()
         std::cout << gem::dot(a, b) << std::endl;
 
         std::cout << a << " " << b << " " << c << std::endl;
+        a += 2.0f;
+        std::cout << a << std::endl;
 
         gem::vec2 horz(1.0f, 0.0f);
         gem::vec2 vert(0.0f, 1.0f);
@@ -100,6 +102,8 @@ int main()
         gem::vec2 pointB(0.9f, 1.0f);
         std::cout << gem::point_in_circle(pointA, { 1.0f, { 0.0f, 0.0f } }) << std::endl;
     }
+
+    std::cin.get();
 
     return 0;
 }
