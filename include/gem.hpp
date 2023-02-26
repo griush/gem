@@ -2,8 +2,8 @@
     made by griush
 */
 
-#ifndef GEM_H
-#define GEM_H
+#ifndef GEM_HPP
+#define GEM_HPP
 
 // std
 #include <cmath>
@@ -25,6 +25,7 @@
 #define GEM_RAD_TO_DEG 57.29577951
 
 namespace gem {
+    // snake_case for every name
 
     // TODO: Review this, not all types should be precision_type 
 #ifdef GEM_DOUBLE
@@ -134,11 +135,45 @@ namespace gem {
         // To avoid components == 'inf'
         vec2& divide(const vec2& other)
         {
+            // TODO: Reniew zero division scenario
             // Check if any of the 'other' components are 0
             if (other.x != 0.0f)
                 this->x /= other.x;
             if (other.y != 0.0f)
                 this->y /= other.y;
+            return *this;
+        }
+
+        // Operations with scalars
+        vec2& add(precision_type scalar)
+        {
+            this->x += scalar;
+            this->y += scalar;
+            return *this;
+        }
+
+        vec2& substract(precision_type scalar)
+        {
+            this->x -= scalar;
+            this->y -= scalar;
+            return *this;
+        }
+
+        vec2& multiply(precision_type scalar)
+        {
+            this->x *= scalar;
+            this->y *= scalar;
+            return *this;
+        }
+
+        vec2& divide(precision_type scalar)
+        {
+            // TODO: Reniew zero division scenario
+            if (scalar == 0.0f)
+                GEM_LOG("Can't divide by zero!");
+
+            this->x /= scalar;
+            this->y /= scalar;
             return *this;
         }
 
@@ -189,6 +224,27 @@ namespace gem {
             return left.divide(right);
         }
 
+        // Operators with scalars
+        friend vec2 operator+(vec2 left, precision_type right)
+        {
+            return left.add(right);
+        }
+
+        friend vec2 operator-(vec2 left, precision_type right)
+        {
+            return left.substract(right);
+        }
+
+        friend vec2 operator*(vec2 left, precision_type right)
+        {
+            return left.multiply(right);
+        }
+
+        friend vec2 operator/(vec2 left, precision_type right)
+        {
+            return left.divide(right);
+        }
+
         vec2& operator+=(const vec2& other)
         {
             this->add(other);
@@ -210,6 +266,31 @@ namespace gem {
         vec2& operator/=(const vec2& other)
         {
             this->divide(other);
+            return *this;
+        }
+
+        // Scalars
+        vec2& operator+=(precision_type scalar)
+        {
+            this->add(scalar);
+            return *this;
+        }
+
+        vec2& operator-=(precision_type scalar)
+        {
+            this->substract(scalar);
+            return *this;
+        }
+
+        vec2& operator*=(precision_type scalar)
+        {
+            this->multiply(scalar);
+            return *this;
+        }
+
+        vec2& operator/=(precision_type scalar)
+        {
+            this->divide(scalar);
             return *this;
         }
 
@@ -323,6 +404,43 @@ namespace gem {
             return *this;
         }
 
+        // Operations with scalars
+        vec3& add(precision_type scalar)
+        {
+            this->x += scalar;
+            this->y += scalar;
+            this->z += scalar;
+            return *this;
+        }
+
+        vec3& substract(precision_type scalar)
+        {
+            this->x -= scalar;
+            this->y -= scalar;
+            this->z -= scalar;
+            return *this;
+        }
+
+        vec3& multiply(precision_type scalar)
+        {
+            this->x *= scalar;
+            this->y *= scalar;
+            this->z *= scalar;
+            return *this;
+        }
+
+        vec3& divide(precision_type scalar)
+        {
+            // TODO: Reniew zero division scenario
+            if (scalar == 0.0f)
+                GEM_LOG("Can't divide by zero!");
+
+            this->x /= scalar;
+            this->y /= scalar;
+            this->z /= scalar;
+            return *this;
+        }
+
         precision_type magnitude() const
         {
             precision_type mag = sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
@@ -371,6 +489,27 @@ namespace gem {
             return left.divide(right);
         }
 
+        // Operators with scalars
+        friend vec3 operator+(vec3 left, precision_type right)
+        {
+            return left.add(right);
+        }
+
+        friend vec3 operator-(vec3 left, precision_type right)
+        {
+            return left.substract(right);
+        }
+
+        friend vec3 operator*(vec3 left, precision_type right)
+        {
+            return left.multiply(right);
+        }
+
+        friend vec3 operator/(vec3 left, precision_type right)
+        {
+            return left.divide(right);
+        }
+
         vec3& operator+=(const vec3& other)
         {
             this->add(other);
@@ -392,6 +531,31 @@ namespace gem {
         vec3& operator/=(const vec3& other)
         {
             this->divide(other);
+            return *this;
+        }
+
+        // Scalars
+        vec3& operator+=(precision_type scalar)
+        {
+            this->add(scalar);
+            return *this;
+        }
+
+        vec3& operator-=(precision_type scalar)
+        {
+            this->substract(scalar);
+            return *this;
+        }
+
+        vec3& operator*=(precision_type scalar)
+        {
+            this->multiply(scalar);
+            return *this;
+        }
+
+        vec3& operator/=(precision_type scalar)
+        {
+            this->divide(scalar);
             return *this;
         }
 
@@ -509,6 +673,47 @@ namespace gem {
             return *this;
         }
 
+        // Operations with scalars
+        vec4& add(precision_type scalar)
+        {
+            this->x += scalar;
+            this->y += scalar;
+            this->z += scalar;
+            this->w += scalar;
+            return *this;
+        }
+
+        vec4& substract(precision_type scalar)
+        {
+            this->x -= scalar;
+            this->y -= scalar;
+            this->z -= scalar;
+            this->w -= scalar;
+            return *this;
+        }
+
+        vec4& multiply(precision_type scalar)
+        {
+            this->x *= scalar;
+            this->y *= scalar;
+            this->z *= scalar;
+            this->w *= scalar;
+            return *this;
+        }
+
+        vec4& divide(precision_type scalar)
+        {
+            // TODO: Reniew zero division scenario
+            if (scalar == 0.0f)
+                GEM_LOG("Can't divide by zero!");
+
+            this->x /= scalar;
+            this->y /= scalar;
+            this->z /= scalar;
+            this->w /= scalar;
+            return *this;
+        }
+
         precision_type magnitude() const
         {
             precision_type mag = sqrt(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);
@@ -559,6 +764,28 @@ namespace gem {
             return left.divide(right);
         }
 
+        // Operators with scalars
+        friend vec4 operator+(vec4 left, precision_type right)
+        {
+            return left.add(right);
+        }
+
+
+        friend vec4 operator-(vec4 left, precision_type right)
+        {
+            return left.substract(right);
+        }
+
+        friend vec4 operator*(vec4 left, precision_type right)
+        {
+            return left.multiply(right);
+        }
+
+        friend vec4 operator/(vec4 left, precision_type right)
+        {
+            return left.divide(right);
+        }
+
         vec4& operator+=(const vec4& other)
         {
             this->add(other);
@@ -580,6 +807,31 @@ namespace gem {
         vec4& operator/=(const vec4& other)
         {
             this->divide(other);
+            return *this;
+        }
+
+        // Scalars
+        vec4& operator+=(precision_type scalar)
+        {
+            this->add(scalar);
+            return *this;
+        }
+
+        vec4& operator-=(precision_type scalar)
+        {
+            this->substract(scalar);
+            return *this;
+        }
+
+        vec4& operator*=(precision_type scalar)
+        {
+            this->multiply(scalar);
+            return *this;
+        }
+
+        vec4& operator/=(precision_type scalar)
+        {
+            this->divide(scalar);
             return *this;
         }
 
@@ -1166,4 +1418,4 @@ namespace gem {
 
 }
 
-#endif // GEM_H
+#endif // GEM_HPP
