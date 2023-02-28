@@ -10,7 +10,7 @@
 #include <string>
 #include <sstream>
 #include <ostream>
-#include <format>
+#include <format> // c++20
 
 #define GEM_DEBUG 0
 
@@ -21,8 +21,12 @@
 #define GEM_LOG(x)
 #endif
 
+// Basic conversions
+// Angles
 #define GEM_DEG_TO_RAD 0.017453229252
 #define GEM_RAD_TO_DEG 57.29577951
+
+#define GEM_MILI(x) (x * 1000)
 
 namespace gem {
     // snake_case for every name
@@ -135,12 +139,8 @@ namespace gem {
         // To avoid components == 'inf'
         vec2& divide(const vec2& other)
         {
-            // TODO: Reniew zero division scenario
-            // Check if any of the 'other' components are 0
-            if (other.x != 0.0f)
-                this->x /= other.x;
-            if (other.y != 0.0f)
-                this->y /= other.y;
+            this->x /= other.x;
+            this->y /= other.y;
             return *this;
         }
 
@@ -168,10 +168,6 @@ namespace gem {
 
         vec2& divide(precision_type scalar)
         {
-            // TODO: Reniew zero division scenario
-            if (scalar == 0.0f)
-                GEM_LOG("Can't divide by zero!");
-
             this->x /= scalar;
             this->y /= scalar;
             return *this;
@@ -394,13 +390,9 @@ namespace gem {
         // To avoid components == 'inf'
         vec3& divide(const vec3& other)
         {
-            // Check if any of the 'other' components are 0
-            if (other.x != 0.0f)
-                this->x /= other.x;
-            if (other.y != 0.0f)
-                this->y /= other.y;
-            if (other.z != 0.0f)
-                this->z /= other.z;
+            this->x /= other.x;
+            this->y /= other.y;
+            this->z /= other.z;
             return *this;
         }
 
@@ -431,10 +423,6 @@ namespace gem {
 
         vec3& divide(precision_type scalar)
         {
-            // TODO: Reniew zero division scenario
-            if (scalar == 0.0f)
-                GEM_LOG("Can't divide by zero!");
-
             this->x /= scalar;
             this->y /= scalar;
             this->z /= scalar;
@@ -661,15 +649,10 @@ namespace gem {
         // To avoid components == 'inf'
         vec4& divide(const vec4& other)
         {
-            // Check if any of the 'other' components are 0
-            if (other.x != 0.0f)
-                this->x /= other.x;
-            if (other.y != 0.0f)
-                this->y /= other.y;
-            if (other.z != 0.0f)
-                this->z /= other.z;
-            if (other.w != 0.0f)
-                this->w /= other.w;
+            this->x /= other.x;
+            this->y /= other.y;
+            this->z /= other.z;
+            this->w /= other.w;
             return *this;
         }
 
@@ -703,10 +686,6 @@ namespace gem {
 
         vec4& divide(precision_type scalar)
         {
-            // TODO: Reniew zero division scenario
-            if (scalar == 0.0f)
-                GEM_LOG("Can't divide by zero!");
-
             this->x /= scalar;
             this->y /= scalar;
             this->z /= scalar;

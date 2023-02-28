@@ -48,6 +48,11 @@ int main()
         gem::vec2* a_ptr = a.value_ptr();
         a_ptr->add(b);
         std::cout << a_ptr->to_string() << std::endl;
+
+        gem::vec2 f(1.0f);
+        gem::vec2 s(0.0f);
+
+        std::cout << f / s << std::endl;
     }
 
     std::cout << "VEC3 ==============" << std::endl;
