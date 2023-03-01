@@ -2,7 +2,7 @@
 // By default uses floats
 // #define GEM_DOUBLE
 // #define GEM_DISABLE_ALIASES
-#include <gem.hpp>
+#include <gem_math.hpp>
 #include <iostream>
 
 // TODO: Make proper example

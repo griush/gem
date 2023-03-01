@@ -2,8 +2,8 @@
     made by griush
 */
 
-#ifndef GEM_HPP
-#define GEM_HPP
+#ifndef GEM_MATH_HPP
+#define GEM_MATH_HPP
 
 // std
 #include <cmath>
@@ -30,13 +30,16 @@
 
 namespace gem {
     // snake_case for every name
-
+/*
     // TODO: Review this, not all types should be precision_type 
 #ifdef GEM_DOUBLE
     using precision_type = double;
 #else
     using precision_type = float;
 #endif
+*/
+    // Temporary, no double supported, always using floats, for now
+    using precision_type = float;
 
     // General functions
     precision_type to_radians(precision_type degrees)
@@ -1351,23 +1354,23 @@ namespace gem {
             float c = cos(r);
             float s = sin(r);
             float omc = 1.0f - c;
-    
+
             float x = axis.x;
             float y = axis.y;
             float z = axis.z;
-    
+
             result.elements[0 + 0 * 4] = x * x * omc + c;
             result.elements[0 + 1 * 4] = y * x * omc + z * s;
             result.elements[0 + 2 * 4] = x * z * omc - y * s;
-    
+
             result.elements[1 + 0 * 4] = x * y * omc - z * s;
             result.elements[1 + 1 * 4] = y * y * omc + c;
             result.elements[1 + 2 * 4] = y * z * omc + x * s;
-    
+
             result.elements[2 + 0 * 4] = x * z * omc + y * s;
             result.elements[2 + 1 * 4] = y * z * omc - x * s;
             result.elements[2 + 2 * 4] = z * z * omc + c;
-    
+
             return result;
         }
 
@@ -1395,6 +1398,73 @@ namespace gem {
 
     }; // mat4
 
+    // Quaternions
+    struct quaternion
+    {
+        precision_type x, y, z, w;
+        
+        quaternion()
+        {
+            x = 0.0f;
+            y = 0.0f;
+            z = 0.0f;
+            w = 0.0f;
+        }
+
+        quaternion(precision_type x, precision_type y, precision_type z, precision_type w)
+        {
+            this->x = x;
+            this->y = y;
+            this->z = z;
+            this->w = w;
+        }
+
+        quaternion& add(const quaternion& other)
+        {
+            this->x += other.x;
+            this->y += other.y;
+            this->z += other.z;
+            this->w += other.w;
+            return *this;
+        }
+
+        quaternion& substract(const quaternion& other)
+        {
+            this->x -= other.x;
+            this->y -= other.y;
+            this->z -= other.z;
+            this->w -= other.w;
+            return *this;
+        }
+
+        quaternion& multiply(const quaternion& other)
+        {
+            this->x = x * other.x - y * other.y - z * other.z - w * other.w;
+            this->y = y * other.x + x * other.y - w * other.z + z * other.w;
+            this->z = z * other.x + w * other.y - x * other.z + y * other.w;
+            this->w = w * other.x + z * other.y - y * other.z + x * other.w;
+
+            return *this;
+        }
+
+        // Operators
+        friend quaternion operator+(quaternion left, const quaternion& right)
+        {
+            return left.add(right);
+        }
+
+
+        friend quaternion operator-(quaternion left, const quaternion& right)
+        {
+            return left.substract(right);
+        }
+
+        friend quaternion operator*(quaternion left, const quaternion& right)
+        {
+            return left.multiply(right);
+        }
+    };
+
 }
 
-#endif // GEM_HPP
+#endif // GEM_MATH_HPP
