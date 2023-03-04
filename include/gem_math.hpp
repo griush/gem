@@ -182,13 +182,16 @@ namespace gem {
             return mag;
         }
 
-        void normalize()
+        vec2& normalize()
         {
             precision_type mag = magnitude();
             if (mag > 0.0f) {
-                this->x /= mag;
-                this->y /= mag;
+                precision_type inv_mag = inverse(mag);
+                this->x *= inv_mag;
+                this->y *= inv_mag;
             }
+
+            return *this;
         }
 
         precision_type dot(const vec2& other) const
@@ -438,14 +441,17 @@ namespace gem {
             return mag;
         }
 
-        void normalize()
+        vec3& normalize()
         {
             precision_type mag = magnitude();
             if (mag > 0.0f) {
-                this->x /= mag;
-                this->y /= mag;
-                this->z /= mag;
+                precision_type inv_mag = inverse(mag);
+                this->x *= inv_mag;
+                this->y *= inv_mag;
+                this->z *= inv_mag;
             }
+
+            return *this;
         }
 
         precision_type dot(const vec3& other) const
@@ -702,15 +708,18 @@ namespace gem {
             return mag;
         }
 
-        void normalize()
+        vec4& normalize()
         {
             precision_type mag = magnitude();
             if (mag > 0.0f) {
-                this->x /= mag;
-                this->y /= mag;
-                this->z /= mag;
-                this->w /= mag;
+                precision_type inv_mag = inverse(mag);
+                this->x *= inv_mag;
+                this->y *= inv_mag;
+                this->z *= inv_mag;
+                this->w *= inv_mag;
             }
+
+            return *this;
         }
 
         precision_type dot(const vec4& other) const
@@ -1387,7 +1396,6 @@ namespace gem {
         std::string to_string() const
         {
             return std::format("{}\n{}\n{}\n{}", columns[0].to_string(), columns[1].to_string(), columns[2].to_string(), columns[3].to_string());
-            return std::string();
         }
 
         friend std::ostream& operator<<(std::ostream& os, const mat4& mat)
@@ -1419,6 +1427,48 @@ namespace gem {
             this->w = w;
         }
 
+        static quaternion from_euler_angles(const vec3& euler_angles)
+        {
+            // Compute half angles
+            precision_type hx = euler_angles.x * 0.5f;
+            precision_type hy = euler_angles.y * 0.5f;
+            precision_type hz = euler_angles.z * 0.5f;
+
+            // Compute sin and cos of half angles
+            precision_type cx = cos(hx);
+            precision_type cy = cos(hy);
+            precision_type cz = cos(hz);
+            precision_type sx = sin(hx);
+            precision_type sy = sin(hy);
+            precision_type sz = sin(hz);
+
+            quaternion q;
+            // Compute the quaternion components
+            q.x = sx * cy * cz - cx * sy * sz;
+            q.y = cx * sy * cz + sx * cy * sz;
+            q.z = cx * cy * sz - sx * sy * cz;
+            q.w = cx * cy * cz + sx * sy * sz;
+            return q;
+        }
+
+        static const quaternion RotationX(precision_type radians)
+        {
+            float angle = radians * 0.5f;
+            return quaternion(sin(angle), 0.0f, 0.0f, cos(angle));
+        }
+
+        static const quaternion RotationY(precision_type radians)
+        {
+            float angle = radians * 0.5f;
+            return quaternion(0.0f, sin(angle), 0.0f, cos(angle));
+        }
+
+        static const quaternion RotationZ(precision_type radians)
+        {
+            float angle = radians * 0.5f;
+            return quaternion(0.0f, 0.0f, sin(angle), cos(angle));
+        }
+
         quaternion& add(const quaternion& other)
         {
             this->x += other.x;
@@ -1445,6 +1495,65 @@ namespace gem {
             this->w = w * other.x + z * other.y - y * other.z + x * other.w;
 
             return *this;
+        }
+
+        precision_type magnitude()
+        {
+            return sqrt(x * x + y * y + z * z + w * w);
+        }
+
+        // Normalize the quaternion
+        quaternion& normalize()
+        {
+            precision_type mag = magnitude();
+            if (mag > 0.0f)
+            {
+                precision_type inverse_magnitude = inverse(mag);
+                x *= inverse_magnitude;
+                y *= inverse_magnitude;
+                z *= inverse_magnitude;
+                w *= inverse_magnitude;
+            }
+
+            return *this;
+        }
+
+        mat4 to_mat4() const
+        {
+            // Normalize the quaternion first
+            quaternion q = *this;
+            q.normalize();
+
+            // Extract the components of the quaternion
+            precision_type x = q.x;
+            precision_type y = q.y;
+            precision_type z = q.z;
+            precision_type w = q.w;
+
+            // Compute the elements of the matrix
+            precision_type xx = x * x;
+            precision_type xy = x * y;
+            precision_type xz = x * z;
+            precision_type xw = x * w;
+            precision_type yy = y * y;
+            precision_type yz = y * z;
+            precision_type yw = y * w;
+            precision_type zz = z * z;
+            precision_type zw = z * w;
+
+            // Construct the matrix
+            mat4 mat(1.0f);
+            mat.elements[0 + 0 * 4] = 1 - 2 * (yy + zz);
+            mat.elements[0 + 1 * 4] = 2 * (xy - zw);
+            mat.elements[0 + 2 * 4] = 2 * (xz + yw);
+            mat.elements[1 + 0 * 4] = 2 * (xy + zw);
+            mat.elements[1 + 1 * 4] = 1 - 2 * (xx + zz);
+            mat.elements[1 + 2 * 4] = 2 * (yz - xw);
+            mat.elements[2 + 0 * 4] = 2 * (xz - yw);
+            mat.elements[2 + 1 * 4] = 2 * (yz + xw);
+            mat.elements[2 + 2 * 4] = 1 - 2 * (xx + yy);
+
+            return mat;
         }
 
         // Operators

@@ -108,6 +108,16 @@ int main()
         std::cout << gem::point_in_circle(pointA, { 1.0f, { 0.0f, 0.0f } }) << std::endl;
     }
 
+    std::cout << "QUATERNIONS ==============" << std::endl;
+    {
+        gem::vec3 euler_angles(0.0f, gem::to_radians(90.0f), 0.0f);
+        gem::quaternion q(euler_angles);
+        std::cout << "Quaternion components: (" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")" << std::endl;
+
+        gem::mat4 mat = q.to_mat4();
+        std::cout << mat << std::endl;
+    }
+
     std::cin.get();
 
     return 0;
