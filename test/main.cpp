@@ -3,12 +3,15 @@
 // #define GEM_DOUBLE
 // #define GEM_DISABLE_ALIASES
 #include <gem_math.hpp>
+#include <gem_logger.hpp>
 #include <iostream>
 
 // TODO: Make proper example
+#define MATH_TEST 1
 
 int main()
 {
+#if MATH_TEST
     std::cout << "VEC2 ==============" << std::endl;
     {
         // vec2 test
@@ -111,12 +114,13 @@ int main()
     std::cout << "QUATERNIONS ==============" << std::endl;
     {
         gem::vec3 euler_angles(0.0f, gem::to_radians(90.0f), 0.0f);
-        gem::quaternion q(euler_angles);
-        std::cout << "Quaternion components: (" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")" << std::endl;
+        gem::quaternion q = gem::quaternion::from_euler_angles(euler_angles);
+        std::cout << q << std::endl;
 
         gem::mat4 mat = q.to_mat4();
         std::cout << mat << std::endl;
     }
+#endif
 
     std::cin.get();
 

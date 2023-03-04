@@ -5,6 +5,8 @@
 #ifndef GEM_MATH_HPP
 #define GEM_MATH_HPP
 
+#include "gem_base.hpp"
+
 // std
 #include <cmath>
 #include <string>
@@ -20,6 +22,8 @@
 #else
 #define GEM_LOG(x)
 #endif
+
+#define GEM_PI 3.14159265358979323846264
 
 // Basic conversions
 // Angles
@@ -192,6 +196,15 @@ namespace gem {
             }
 
             return *this;
+        }
+
+        vec2 normalized() const
+        {
+            precision_type mag = magnitude();
+            vec2 vec(this->x, this->y);
+            vec.normalize();
+
+            return vec;
         }
 
         precision_type dot(const vec2& other) const
@@ -452,6 +465,15 @@ namespace gem {
             }
 
             return *this;
+        }
+
+        vec3 normalized() const
+        {
+            precision_type mag = magnitude();
+            vec3 vec(this->x, this->y, this->z);
+            vec.normalize();
+
+            return vec;
         }
 
         precision_type dot(const vec3& other) const
@@ -720,6 +742,15 @@ namespace gem {
             }
 
             return *this;
+        }
+
+        vec4 normalized() const
+        {
+            precision_type mag = magnitude();
+            vec4 vec(this->x, this->y, this->z, this->w);
+            vec.normalize();
+
+            return vec;
         }
 
         precision_type dot(const vec4& other) const
@@ -1107,14 +1138,14 @@ namespace gem {
 
         mat4()
         {
-            for (int i = 0; i < 4 * 4; i++)
+            for (int32 i = 0; i < 4 * 4; i++)
                 elements[i] = 0.0f;
         }
 
         mat4(precision_type diagonal)
         {
             // Initialize all elements to 0
-            for (int i = 0; i < 4 * 4; i++)
+            for (int32 i = 0; i < 4 * 4; i++)
                 elements[i] = 0.0f;
 
             // Set the diagonal
@@ -1131,12 +1162,12 @@ namespace gem {
 
         mat4& multiply(const mat4& other)
         {
-            for (int y = 0; y < 4; y++)
+            for (int32 y = 0; y < 4; y++)
             {
-                for (int x = 0; x < 4; x++)
+                for (int32 x = 0; x < 4; x++)
                 {
                     float sum = 0.0f;
-                    for (int e = 0; e < 4; e++)
+                    for (int32 e = 0; e < 4; e++)
                     {
                         sum += elements[x + e * 4] * other.elements[e + y * 4];
                     }
@@ -1286,7 +1317,7 @@ namespace gem {
             float determinant = elements[0] * temp[0] + elements[1] * temp[4] + elements[2] * temp[8] + elements[3] * temp[12];
             determinant = 1.0f / determinant;
 
-            for (int i = 0; i < 4 * 4; i++)
+            for (int32 i = 0; i < 4 * 4; i++)
                 elements[i] = temp[i] * determinant;
 
             return *this;
@@ -1427,6 +1458,42 @@ namespace gem {
             this->w = w;
         }
 
+        quaternion(const vec3& axis, precision_type angle)
+        {
+            // Calculate the sine and cosine of half the angle
+            float sin_half_angle = sin(angle * 0.5f);
+            float cos_half_angle = cos(angle * 0.5f);
+
+            // Create a normalized quaternion from the axis of rotation and half-angle
+            vec3 normalized_axis = axis.normalized();
+            this->x = normalized_axis.x * sin_half_angle;
+            this->y = normalized_axis.y * sin_half_angle;
+            this->z = normalized_axis.z * sin_half_angle;
+            this->w = cos_half_angle;
+        }
+
+        quaternion(const vec3& euler_angles)
+        {
+            // Compute half angles
+            precision_type hx = euler_angles.x * 0.5f;
+            precision_type hy = euler_angles.y * 0.5f;
+            precision_type hz = euler_angles.z * 0.5f;
+
+            // Compute sin and cos of half angles
+            precision_type cx = cos(hx);
+            precision_type cy = cos(hy);
+            precision_type cz = cos(hz);
+            precision_type sx = sin(hx);
+            precision_type sy = sin(hy);
+            precision_type sz = sin(hz);
+
+            // Compute the quaternion components
+            this->x = sx * cy * cz - cx * sy * sz;
+            this->y = cx * sy * cz + sx * cy * sz;
+            this->z = cx * cy * sz - sx * sy * cz;
+            this->w = cx * cy * cz + sx * sy * sz;
+        }
+
         static quaternion from_euler_angles(const vec3& euler_angles)
         {
             // Compute half angles
@@ -1518,6 +1585,27 @@ namespace gem {
             return *this;
         }
 
+        quaternion normalized() const
+        {
+            precision_type mag = magnitude();
+            quaternion q(this->x, this->y, this->z, this->w);
+            q.normalize()
+
+            return q;
+        }
+
+        void conjugate()
+        {
+            x = -x;
+            y = -y;
+            z = -z;
+        }
+
+        quaternion conjugated() const
+        {
+            return Quaternion(w, -x, -y, -z);
+        }
+
         mat4 to_mat4() const
         {
             // Normalize the quaternion first
@@ -1556,6 +1644,30 @@ namespace gem {
             return mat;
         }
 
+        vec3 to_euler_angles() const {
+            vec3 euler;
+
+            // roll (x-axis rotation)
+            float sinr_cosp = 2.0f * (w * x + y * z);
+            float cosr_cosp = 1.0f - 2.0f * (x * x + y * y);
+            euler.x = std::atan2(sinr_cosp, cosr_cosp);
+
+            // pitch (y-axis rotation)
+            float sinp = 2.0f * (w * y - z * x);
+            if (std::abs(sinp) >= 1.0f) {
+              euler.y = std::copysign(GEM_PI * 0.5f, sinp); // use 90 degrees if out of range
+            } else {
+                euler.y = std::asin(sinp);
+            }
+
+            // yaw (z-axis rotation)
+            float siny_cosp = 2.0f * (w * z + x * y);
+            float cosy_cosp = 1.0f - 2.0f * (y * y + z * z);
+            euler.z = std::atan2(siny_cosp, cosy_cosp);
+
+            return euler;
+        }
+
         // Operators
         friend quaternion operator+(quaternion left, const quaternion& right)
         {
@@ -1571,6 +1683,17 @@ namespace gem {
         friend quaternion operator*(quaternion left, const quaternion& right)
         {
             return left.multiply(right);
+        }
+
+        std::string to_string() const
+        {
+            return std::format("({}, {}, {}, {})", this->x, this->y, this->z, this->w);
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const quaternion& quat)
+        {
+            os << quat.to_string();
+            return os;
         }
     };
 
