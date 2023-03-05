@@ -23,7 +23,7 @@
 #define GEM_LOG(x)
 #endif
 
-#define GEM_PI 3.14159265358979323846264
+#define GEM_PI 3.14159265358979
 
 // Basic conversions
 // Angles
@@ -46,6 +46,12 @@ namespace gem {
     using precision_type = float;
 
     // General functions
+    template<typename T>
+    T pi()
+    {
+        return static_cast<T>(GEM_PI);
+    }
+
     precision_type to_radians(precision_type degrees)
     {
         return degrees * GEM_DEG_TO_RAD;
@@ -932,22 +938,25 @@ namespace gem {
     }
 
     // Color conversions
+    // TODO: Review (0-255 should be ivecs(ints)) -> implement ivec
     color3 rgb_to_normalized(const color3& color)
     {
         vec3 c(color);
-        c.r /= 255.0f;
-        c.g /= 255.0f;
-        c.b /= 255.0f;
+        float conv = inverse(255.0f);
+        c.r *= conv;
+        c.g *= conv;
+        c.b *= conv;
         return c;
     }
 
     color4 rgb_to_normalized(const color4& color)
     {
         vec4 c(color);
-        c.r /= 255.0f;
-        c.g /= 255.0f;
-        c.b /= 255.0f;
-        c.a /= 255.0f;
+        float conv = inverse(255.0f);
+        c.r *= conv;
+        c.g *= conv;
+        c.b *= conv;
+        c.a *= conv;
         return c;
     }
 
@@ -1077,11 +1086,6 @@ namespace gem {
         return result;
     }
 
-    void normalize(vec2& vec)
-    {
-        vec.normalize();
-    }
-
     precision_type angle(const vec2& first, const vec2& second)
     {
         precision_type angleCos = dot(first, second) / (first.magnitude() * second.magnitude());
@@ -1095,11 +1099,6 @@ namespace gem {
         return result;
     }
 
-    void normalize(vec3& vec)
-    {
-        vec.normalize();
-    }
-
     precision_type angle(const vec3& first, const vec3& second)
     {
         precision_type angleCos = dot(first, second) / (first.magnitude() * second.magnitude());
@@ -1111,11 +1110,6 @@ namespace gem {
     {
         precision_type result = first.x * second.x + first.y * second.y + first.z * second.z + first.w * second.w;
         return result;
-    }
-
-    void normalize(vec4& vec)
-    {
-        vec.normalize();
     }
 
     precision_type angle(const vec4& first, const vec4& second)
@@ -1321,6 +1315,12 @@ namespace gem {
                 elements[i] = temp[i] * determinant;
 
             return *this;
+        }
+
+        mat4 invert() const
+        {
+            mat4 mat = mat4::inverse(*this);
+            return mat;
         }
 
         static mat4 inverse(const mat4& mat)
@@ -1564,7 +1564,7 @@ namespace gem {
             return *this;
         }
 
-        precision_type magnitude()
+        precision_type magnitude() const
         {
             return sqrt(x * x + y * y + z * z + w * w);
         }
@@ -1589,21 +1589,23 @@ namespace gem {
         {
             precision_type mag = magnitude();
             quaternion q(this->x, this->y, this->z, this->w);
-            q.normalize()
+            q.normalize();
 
             return q;
         }
 
-        void conjugate()
+        quaternion& conjugate()
         {
             x = -x;
             y = -y;
             z = -z;
+
+            return *this;
         }
 
         quaternion conjugated() const
         {
-            return Quaternion(w, -x, -y, -z);
+            return quaternion(w, -x, -y, -z);
         }
 
         mat4 to_mat4() const

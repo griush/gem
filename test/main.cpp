@@ -3,7 +3,6 @@
 // #define GEM_DOUBLE
 // #define GEM_DISABLE_ALIASES
 #include <gem_math.hpp>
-#include <gem_logger.hpp>
 #include <iostream>
 
 // TODO: Make proper example
@@ -12,6 +11,12 @@
 int main()
 {
 #if MATH_TEST
+
+    std::cout << "PI ==============" << std::endl;
+    {
+        std::cout << gem::pi<float>() << std::endl;
+    }
+
     std::cout << "VEC2 ==============" << std::endl;
     {
         // vec2 test
@@ -24,7 +29,7 @@ int main()
 
         // vec2::magnitude
         std::cout << a.magnitude() << std::endl;
-        gem::normalize(a);
+        a.normalize();
         std::cout << a.magnitude() << std::endl;
 
         // Two alternatives for dot products
