@@ -52,6 +52,7 @@ namespace gem {
         return static_cast<T>(GEM_PI);
     }
 
+    // TODO: once all vecotrs and matrices are changed with templates, review precision_type here
     precision_type to_radians(precision_type degrees)
     {
         return degrees * GEM_DEG_TO_RAD;
@@ -95,6 +96,7 @@ namespace gem {
     // Vectors
     // vec2
     // Two-component vector
+    template<typename T>
     struct vec2
     {
         // Data
@@ -102,55 +104,51 @@ namespace gem {
         {
             struct
             {
-                precision_type x;
-                precision_type y;
+                T x;
+                T y;
             };
         };
         
         // Constructors
-        vec2()
+        vec2() : x(T{}), y(T{})
         {
-            x = 0.0f;
-            y = 0.0f;
         }
 
-        vec2(precision_type scalar)
-        {
-            x = scalar;
-            y = scalar;
-        }
-
-        vec2(precision_type x, precision_type y)
+        vec2(T x, T y)
         {
             this->x = x;
             this->y = y;
         }
 
+        vec2(T scalar)
+        {
+            x = scalar;
+            y = scalar;
+        }
+
         // Operations
-        vec2& add(const vec2& other)
+        vec2<T>& add(const vec2<T>& other)
         {
             this->x += other.x;
             this->y += other.y;
             return *this;
         }
 
-        vec2& substract(const vec2& other)
+        vec2<T>& substract(const vec2<T>& other)
         {
             this->x -= other.x;
             this->y -= other.y;
             return *this;
         }
 
-        vec2& multiply(const vec2& other)
+        vec2<T>& multiply(const vec2<T>& other)
         {
             this->x *= other.x;
             this->y *= other.y;
             return *this;
         }
 
-        // If divide by 0, this stays the same (per component)
-        // To avoid components == 'inf'
-        vec2& divide(const vec2& other)
+        vec2<T>& divide(const vec2<T>& other)
         {
             this->x /= other.x;
             this->y /= other.y;
@@ -158,43 +156,43 @@ namespace gem {
         }
 
         // Operations with scalars
-        vec2& add(precision_type scalar)
+        vec2<T>& add(T scalar)
         {
             this->x += scalar;
             this->y += scalar;
             return *this;
         }
 
-        vec2& substract(precision_type scalar)
+        vec2<T>& substract(T scalar)
         {
             this->x -= scalar;
             this->y -= scalar;
             return *this;
         }
 
-        vec2& multiply(precision_type scalar)
+        vec2<T>& multiply(T scalar)
         {
             this->x *= scalar;
             this->y *= scalar;
             return *this;
         }
 
-        vec2& divide(precision_type scalar)
+        vec2<T>& divide(T scalar)
         {
             this->x /= scalar;
             this->y /= scalar;
             return *this;
         }
 
-        precision_type magnitude() const
+        float magnitude() const
         {
-            precision_type mag = sqrt(this->x * this->x + this->y * this->y);
+            float mag = sqrt(this->x * this->x + this->y * this->y);
             return mag;
         }
 
-        vec2& normalize()
+        vec2<T>& normalize()
         {
-            precision_type mag = magnitude();
+            float mag = magnitude();
             if (mag > 0.0f) {
                 precision_type inv_mag = inverse(mag);
                 this->x *= inv_mag;
@@ -204,123 +202,122 @@ namespace gem {
             return *this;
         }
 
-        vec2 normalized() const
+        vec2<T> normalized() const
         {
-            precision_type mag = magnitude();
-            vec2 vec(this->x, this->y);
+            vec2<T> vec(this->x, this->y);
             vec.normalize();
 
             return vec;
         }
 
-        precision_type dot(const vec2& other) const
+        float dot(const vec2<T>& other) const
         {
-            precision_type result = this->x * other.x + this->y * other.y;
+            float result = this->x * other.x + this->y * other.y;
             return result;
         }
 
-        vec2* value_ptr()
+        vec2<T>* value_ptr()
         {
             return &(*this);
         }
 
         // Operators
-        friend vec2 operator+(vec2 left, const vec2& right)
+        friend vec2<T> operator+(vec2<T> left, const vec2<T>& right)
         {
             return left.add(right);
         }
 
-        friend vec2 operator-(vec2 left, const vec2& right)
+        friend vec2<T> operator-(vec2<T> left, const vec2<T>& right)
         {
             return left.substract(right);
         }
 
-        friend vec2 operator*(vec2 left, const vec2& right)
+        friend vec2<T> operator*(vec2<T> left, const vec2<T>& right)
         {
             return left.multiply(right);
         }
 
-        friend vec2 operator/(vec2 left, const vec2& right)
+        friend vec2<T> operator/(vec2<T> left, const vec2<T>& right)
         {
             return left.divide(right);
         }
 
         // Operators with scalars
-        friend vec2 operator+(vec2 left, precision_type right)
+        friend vec2<T> operator+(vec2<T> left, T right)
         {
             return left.add(right);
         }
 
-        friend vec2 operator-(vec2 left, precision_type right)
+        friend vec2<T> operator-(vec2<T> left, T right)
         {
             return left.substract(right);
         }
 
-        friend vec2 operator*(vec2 left, precision_type right)
+        friend vec2<T> operator*(vec2<T> left, T right)
         {
             return left.multiply(right);
         }
 
-        friend vec2 operator/(vec2 left, precision_type right)
+        friend vec2<T> operator/(vec2 left, T right)
         {
             return left.divide(right);
         }
 
-        vec2& operator+=(const vec2& other)
+        vec2<T>& operator+=(const vec2<T>& other)
         {
             this->add(other);
             return *this;
         }
 
-        vec2& operator-=(const vec2& other)
+        vec2<T>& operator-=(const vec2<T>& other)
         {
             this->substract(other);
             return *this;
         }
 
-        vec2& operator*=(const vec2& other)
+        vec2<T>& operator*=(const vec2<T>& other)
         {
             this->multiply(other);
             return *this;
         }
 
-        vec2& operator/=(const vec2& other)
+        vec2<T>& operator/=(const vec2<T>& other)
         {
             this->divide(other);
             return *this;
         }
 
         // Scalars
-        vec2& operator+=(precision_type scalar)
+        vec2<T>& operator+=(T scalar)
         {
             this->add(scalar);
             return *this;
         }
 
-        vec2& operator-=(precision_type scalar)
+        vec2<T>& operator-=(T scalar)
         {
             this->substract(scalar);
             return *this;
         }
 
-        vec2& operator*=(precision_type scalar)
+        vec2<T>& operator*=(T scalar)
         {
             this->multiply(scalar);
             return *this;
         }
 
-        vec2& operator/=(precision_type scalar)
+        vec2<T>& operator/=(T scalar)
         {
             this->divide(scalar);
             return *this;
         }
 
-        friend bool operator==(const vec2& left, const vec2& right)
+        friend bool operator==(const vec2<T>& left, const vec2<T>& right)
         {
             return left.x == right.x and left.y == right.y;
         }
 
-        friend bool operator!=(const vec2& left, const vec2& right)
+        friend bool operator!=(const vec2<T>& left, const vec2<T>& right)
         {
             return !(left.x == right.x and left.y == right.y);
         }
@@ -330,7 +327,7 @@ namespace gem {
             return std::format("({}, {})", this->x, this->y);
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const vec2& vec) {
+        friend std::ostream& operator<<(std::ostream& os, const vec2<T>& vec) {
             os << vec.to_string();
             return os;
         }
@@ -339,6 +336,7 @@ namespace gem {
 
     // vec3
     // Three-component vector
+    template<typename T>
     struct vec3
     {
         // Data
@@ -346,40 +344,37 @@ namespace gem {
         {
             struct
             {
-                precision_type x;
-                precision_type y;
-                precision_type z;
+                T x;
+                T y;
+                T z;
             };
             struct
             {
-                precision_type r;
-                precision_type g;
-                precision_type b;
+                T r;
+                T g;
+                T b;
             };
             struct
             {
-                precision_type h;
-                precision_type s;
-                precision_type v;
+                T h;
+                T s;
+                T v;
             };
         };
-        
+
         // Constructors
-        vec3()
+        vec3() : x(T{}), y(T{}), z(T{})
         {
-            x = 0.0f;
-            y = 0.0f;
-            z = 0.0f;
         }
 
-        vec3(precision_type scalar)
+        vec3(T scalar)
         {
             x = scalar;
             y = scalar;
             z = scalar;
         }
 
-        vec3(precision_type x, precision_type y, precision_type z)
+        vec3(T x, T y, T z)
         {
             this->x = x;
             this->y = y;
@@ -387,7 +382,7 @@ namespace gem {
         }
 
         // Operations
-        vec3& add(const vec3& other)
+        vec3<T>& add(const vec3<T>& other)
         {
             this->x += other.x;
             this->y += other.y;
@@ -395,7 +390,7 @@ namespace gem {
             return *this;
         }
 
-        vec3& substract(const vec3& other)
+        vec3<T>& substract(const vec3<T>& other)
         {
             this->x -= other.x;
             this->y -= other.y;
@@ -403,7 +398,7 @@ namespace gem {
             return *this;
         }
 
-        vec3& multiply(const vec3& other)
+        vec3<T>& multiply(const vec3<T>& other)
         {
             this->x *= other.x;
             this->y *= other.y;
@@ -411,9 +406,7 @@ namespace gem {
             return *this;
         }
 
-        // If divide by 0, this stays the same (per component)
-        // To avoid components == 'inf'
-        vec3& divide(const vec3& other)
+        vec3<T>& divide(const vec3<T>& other)
         {
             this->x /= other.x;
             this->y /= other.y;
@@ -422,7 +415,7 @@ namespace gem {
         }
 
         // Operations with scalars
-        vec3& add(precision_type scalar)
+        vec3<T>& add(T scalar)
         {
             this->x += scalar;
             this->y += scalar;
@@ -430,7 +423,7 @@ namespace gem {
             return *this;
         }
 
-        vec3& substract(precision_type scalar)
+        vec3<T>& substract(T scalar)
         {
             this->x -= scalar;
             this->y -= scalar;
@@ -438,7 +431,7 @@ namespace gem {
             return *this;
         }
 
-        vec3& multiply(precision_type scalar)
+        vec3<T>& multiply(T scalar)
         {
             this->x *= scalar;
             this->y *= scalar;
@@ -446,7 +439,7 @@ namespace gem {
             return *this;
         }
 
-        vec3& divide(precision_type scalar)
+        vec3<T>& divide(T scalar)
         {
             this->x /= scalar;
             this->y /= scalar;
@@ -454,17 +447,17 @@ namespace gem {
             return *this;
         }
 
-        precision_type magnitude() const
+        float magnitude() const
         {
-            precision_type mag = sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
+            float mag = sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
             return mag;
         }
 
-        vec3& normalize()
+        vec3<T>& normalize()
         {
-            precision_type mag = magnitude();
+            float mag = magnitude();
             if (mag > 0.0f) {
-                precision_type inv_mag = inverse(mag);
+                float inv_mag = inverse(mag);
                 this->x *= inv_mag;
                 this->y *= inv_mag;
                 this->z *= inv_mag;
@@ -473,125 +466,124 @@ namespace gem {
             return *this;
         }
 
-        vec3 normalized() const
+        vec3<T> normalized() const
         {
-            precision_type mag = magnitude();
-            vec3 vec(this->x, this->y, this->z);
+            vec3<T> vec(this->x, this->y, this->z);
             vec.normalize();
 
             return vec;
         }
 
-        precision_type dot(const vec3& other) const
+        float dot(const vec3<T>& other) const
         {
-            precision_type result = this->x * other.x + this->y * other.y + this->z * other.z;
+            float result = this->x * other.x + this->y * other.y + this->z * other.z;
             return result;
         }
 
-        vec3* value_ptr()
+        vec3<T>* value_ptr()
         {
             return &(*this);
         }
 
         // Operators
-        friend vec3 operator+(vec3 left, const vec3& right)
+        friend vec3<T> operator+(vec3<T> left, const vec3<T>& right)
         {
             return left.add(right);
         }
 
-        friend vec3 operator-(vec3 left, const vec3& right)
+        friend vec3<T> operator-(vec3<T> left, const vec3<T>& right)
         {
             return left.substract(right);
         }
 
-        friend vec3 operator*(vec3 left, const vec3& right)
+        friend vec3<T> operator*(vec3<T> left, const vec3<T>& right)
         {
             return left.multiply(right);
         }
 
-        friend vec3 operator/(vec3 left, const vec3& right)
+        friend vec3<T> operator/(vec3<T> left, const vec3<T>& right)
         {
             return left.divide(right);
         }
 
         // Operators with scalars
-        friend vec3 operator+(vec3 left, precision_type right)
+        friend vec3<T> operator+(vec3<T> left, T right)
         {
             return left.add(right);
         }
 
-        friend vec3 operator-(vec3 left, precision_type right)
+        friend vec3<T> operator-(vec3<T> left, T right)
         {
             return left.substract(right);
         }
 
-        friend vec3 operator*(vec3 left, precision_type right)
+        friend vec3<T> operator*(vec3<T> left, T right)
         {
             return left.multiply(right);
         }
 
-        friend vec3 operator/(vec3 left, precision_type right)
+        friend vec3<T> operator/(vec3<T> left, T right)
         {
             return left.divide(right);
         }
 
-        vec3& operator+=(const vec3& other)
+        vec3<T>& operator+=(const vec3<T>& other)
         {
             this->add(other);
             return *this;
         }
 
-        vec3& operator-=(const vec3& other)
+        vec3<T>& operator-=(const vec3<T>& other)
         {
             this->substract(other);
             return *this;
         }
 
-        vec3& operator*=(const vec3& other)
+        vec3<T>& operator*=(const vec3<T>& other)
         {
             this->multiply(other);
             return *this;
         }
 
-        vec3& operator/=(const vec3& other)
+        vec3<T>& operator/=(const vec3<T>& other)
         {
             this->divide(other);
             return *this;
         }
 
         // Scalars
-        vec3& operator+=(precision_type scalar)
+        vec3<T>& operator+=(T scalar)
         {
             this->add(scalar);
             return *this;
         }
 
-        vec3& operator-=(precision_type scalar)
+        vec3<T>& operator-=(T scalar)
         {
             this->substract(scalar);
             return *this;
         }
 
-        vec3& operator*=(precision_type scalar)
+        vec3<T>& operator*=(T scalar)
         {
             this->multiply(scalar);
             return *this;
         }
 
-        vec3& operator/=(precision_type scalar)
+        vec3<T>& operator/=(T scalar)
         {
             this->divide(scalar);
             return *this;
         }
 
-        bool operator==(const vec3& other)
+        friend bool operator==(const vec3<T>& left, const vec3<T>& right)
         {
-            return this->x == other.x and this->y == other.y && this->z == other.z;
+            return left.x == right.x and left.y == right.y && left.z == right.z;
         }
 
-        bool operator!=(const vec3& other)
+        friend bool operator!=(const vec3<T>& left, const vec3<T>& right)
         {
-            return !(this->x == other.x and this->y == other.y && this->z == other.z);
+            return !(left.x == right.x and left.y == right.y && left.z == right.z);
         }
 
         std::string to_string() const
@@ -608,6 +600,7 @@ namespace gem {
 
     // vec4
     // Four-component vector
+    template<typename T>
     struct vec4
     {
         // Data
@@ -615,30 +608,26 @@ namespace gem {
         {
             struct
             {
-                precision_type x;
-                precision_type y;
-                precision_type z;
-                precision_type w;
+                T x;
+                T y;
+                T z;
+                T w;
             };
             struct
             {
-                precision_type r;
-                precision_type g;
-                precision_type b;
-                precision_type a;
+                T r;
+                T g;
+                T b;
+                T a;
             };
         };
         
         // Constructors
-        vec4()
+        vec4() : x(T{}), y(T{}), z(T{}), w(T{})
         {
-            x = 0.0f;
-            y = 0.0f;
-            z = 0.0f;
-            w = 0.0f;
         }
 
-        vec4(precision_type scalar)
+        vec4(T scalar)
         {
             x = scalar;
             y = scalar;
@@ -646,7 +635,7 @@ namespace gem {
             w = scalar;
         }
 
-        vec4(precision_type x, precision_type y, precision_type z, precision_type w)
+        vec4(T x, T y, T z, T w)
         {
             this->x = x;
             this->y = y;
@@ -655,7 +644,7 @@ namespace gem {
         }
 
         // Operations
-        vec4& add(const vec4& other)
+        vec4<T>& add(const vec4<T>& other)
         {
             this->x += other.x;
             this->y += other.y;
@@ -664,7 +653,7 @@ namespace gem {
             return *this;
         }
 
-        vec4& substract(const vec4& other)
+        vec4<T>& substract(const vec4<T>& other)
         {
             this->x -= other.x;
             this->y -= other.y;
@@ -673,7 +662,7 @@ namespace gem {
             return *this;
         }
 
-        vec4& multiply(const vec4& other)
+        vec4<T>& multiply(const vec4<T>& other)
         {
             this->x *= other.x;
             this->y *= other.y;
@@ -682,9 +671,7 @@ namespace gem {
             return *this;
         }
 
-        // If divide by 0, this stays the same (per component)
-        // To avoid components == 'inf'
-        vec4& divide(const vec4& other)
+        vec4<T>& divide(const vec4<T>& other)
         {
             this->x /= other.x;
             this->y /= other.y;
@@ -694,7 +681,7 @@ namespace gem {
         }
 
         // Operations with scalars
-        vec4& add(precision_type scalar)
+        vec4<T>& add(T scalar)
         {
             this->x += scalar;
             this->y += scalar;
@@ -703,7 +690,7 @@ namespace gem {
             return *this;
         }
 
-        vec4& substract(precision_type scalar)
+        vec4<T>& substract(T scalar)
         {
             this->x -= scalar;
             this->y -= scalar;
@@ -712,7 +699,7 @@ namespace gem {
             return *this;
         }
 
-        vec4& multiply(precision_type scalar)
+        vec4<T>& multiply(T scalar)
         {
             this->x *= scalar;
             this->y *= scalar;
@@ -721,7 +708,7 @@ namespace gem {
             return *this;
         }
 
-        vec4& divide(precision_type scalar)
+        vec4<T>& divide(T scalar)
         {
             this->x /= scalar;
             this->y /= scalar;
@@ -730,17 +717,17 @@ namespace gem {
             return *this;
         }
 
-        precision_type magnitude() const
+        float magnitude() const
         {
-            precision_type mag = sqrt(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);
+            float mag = sqrt(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);
             return mag;
         }
 
-        vec4& normalize()
+        vec4<T>& normalize()
         {
-            precision_type mag = magnitude();
+            float mag = magnitude();
             if (mag > 0.0f) {
-                precision_type inv_mag = inverse(mag);
+                float inv_mag = inverse(mag);
                 this->x *= inv_mag;
                 this->y *= inv_mag;
                 this->z *= inv_mag;
@@ -750,127 +737,126 @@ namespace gem {
             return *this;
         }
 
-        vec4 normalized() const
+        vec4<T> normalized() const
         {
-            precision_type mag = magnitude();
             vec4 vec(this->x, this->y, this->z, this->w);
             vec.normalize();
 
             return vec;
         }
 
-        precision_type dot(const vec4& other) const
+        float dot(const vec4& other) const
         {
-            precision_type result = this->x * other.x + this->y * other.y + this->z * other.z + this->w * other.w;
+            float result = this->x * other.x + this->y * other.y + this->z * other.z + this->w * other.w;
             return result;
         }
 
-        vec4* value_ptr()
+        vec4<T>* value_ptr()
         {
             return &(*this);
         }
 
         // Operators
-        friend vec4 operator+(vec4 left, const vec4& right)
+        friend vec4<T> operator+(vec4<T> left, const vec4<T>& right)
         {
             return left.add(right);
         }
 
 
-        friend vec4 operator-(vec4 left, const vec4& right)
+        friend vec4<T> operator-(vec4<T> left, const vec4<T>& right)
         {
             return left.substract(right);
         }
 
-        friend vec4 operator*(vec4 left, const vec4& right)
+        friend vec4<T> operator*(vec4<T> left, const vec4<T>& right)
         {
             return left.multiply(right);
         }
 
-        friend vec4 operator/(vec4 left, const vec4& right)
+        friend vec4<T> operator/(vec4<T> left, const vec4<T>& right)
         {
             return left.divide(right);
         }
 
         // Operators with scalars
-        friend vec4 operator+(vec4 left, precision_type right)
+        friend vec4<T> operator+(vec4<T> left, T right)
         {
             return left.add(right);
         }
 
 
-        friend vec4 operator-(vec4 left, precision_type right)
+        friend vec4<T> operator-(vec4<T> left, T right)
         {
             return left.substract(right);
         }
 
-        friend vec4 operator*(vec4 left, precision_type right)
+        friend vec4<T> operator*(vec4<T> left, T right)
         {
             return left.multiply(right);
         }
 
-        friend vec4 operator/(vec4 left, precision_type right)
+        friend vec4<T> operator/(vec4<T> left, T right)
         {
             return left.divide(right);
         }
 
-        vec4& operator+=(const vec4& other)
+        vec4<T>& operator+=(const vec4<T>& other)
         {
             this->add(other);
             return *this;
         }
 
-        vec4& operator-=(const vec4& other)
+        vec4<T>& operator-=(const vec4<T>& other)
         {
             this->substract(other);
             return *this;
         }
 
-        vec4& operator*=(const vec4& other)
+        vec4<T>& operator*=(const vec4<T>& other)
         {
             this->multiply(other);
             return *this;
         }
 
-        vec4& operator/=(const vec4& other)
+        vec4<T>& operator/=(const vec4<T>& other)
         {
             this->divide(other);
             return *this;
         }
 
         // Scalars
-        vec4& operator+=(precision_type scalar)
+        vec4<T>& operator+=(T scalar)
         {
             this->add(scalar);
             return *this;
         }
 
-        vec4& operator-=(precision_type scalar)
+        vec4<T>& operator-=(T scalar)
         {
             this->substract(scalar);
             return *this;
         }
 
-        vec4& operator*=(precision_type scalar)
+        vec4<T>& operator*=(T scalar)
         {
             this->multiply(scalar);
             return *this;
         }
 
-        vec4& operator/=(precision_type scalar)
+        vec4<T>& operator/=(T scalar)
         {
             this->divide(scalar);
             return *this;
         }
 
-        bool operator==(const vec4& other)
+        friend bool operator==(const vec4& left, const vec4& right)
         {
-            return this->x == other.x and this->y == other.y && this->z == other.z && this->w == other.w;
+            return left.x == right.x and left.y == right.y && left.z == right.z && left.w == right.w;
         }
 
-        bool operator!=(const vec4& other)
+        friend bool operator!=(const vec4& left, const vec4& right)
         {
-            return !(this->x == other.x and this->y == other.y && this->z == other.z && this->w == other.w);
+            return !(left.x == right.x and left.y == right.y && left.z == right.z && left.w == right.w);
         }
 
         std::string to_string() const
@@ -878,18 +864,12 @@ namespace gem {
             return std::format("({}, {}, {}, {})", this->x, this->y, this->z, this->w);
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const vec4& vec) {
+        friend std::ostream& operator<<(std::ostream& os, const vec4<T>& vec) {
             os << vec.to_string();
             return os;
         }
 
     }; // vec4
-
-    // Aliases
-#ifndef GEM_DISABLE_ALIASES
-    using color3 = vec3;
-    using color4 = vec4;
-#endif
 
     // Vector general operation
     // Geometry
@@ -897,32 +877,42 @@ namespace gem {
     struct circle
     {
         float radius = 1.0f;
-        vec2 position = vec2(0.0f);
+        vec2<float> position = vec2(0.0f);
     };
 
     struct sphere
     {
         float radius = 1.0f;
-        vec3 position = vec3(0.0f);
+        vec3<float> position = vec3(0.0f);
     };
 
-    precision_type distance(const vec2& a, const vec2& b)
+    template<typename T>
+    float distance(const vec2<T>& a, const vec2<T>& b)
     {
         GEM_LOG(a - b);
         return (a - b).magnitude();
     }
 
-    precision_type distance(const vec3& a, const vec3& b)
+    template<typename T>
+    float distance(const vec3<T>& a, const vec3<T>& b)
     {
         return (a - b).magnitude();
     }
 
-    bool point_in_circle(const vec2& point, const circle& circle)
+    template<typename T>
+    float distance(const vec4<T>& a, const vec4<T>& b)
+    {
+        return (a - b).magnitude();
+    }
+
+    template<typename T>
+    bool point_in_circle(const vec2<T>& point, const circle& circle)
     {
         return distance(point, circle.position) <= circle.radius;
     }
 
-    bool point_in_sphere(const vec3& point, const sphere& sphere)
+    template<typename T>
+    bool point_in_sphere(const vec3<T>& point, const sphere& sphere)
     {
         return distance(point, sphere.position) <= sphere.radius;
     }
@@ -939,6 +929,8 @@ namespace gem {
 
     // Color conversions
     // TODO: Review (0-255 should be ivecs(ints)) -> implement ivec
+    // TODO: Remake colors
+#ifdef GEM_COLOR_CONV
     color3 rgb_to_normalized(const color3& color)
     {
         vec3 c(color);
@@ -1078,43 +1070,49 @@ namespace gem {
         out = normalized_to_rgb(out);
         return out;
     }
-
+#endif
     // vec2
-    precision_type dot(const vec2& first, const vec2& second)
+    template<typename T>
+    T dot(const vec2<T>& first, const vec2<T>& second)
     {
-        precision_type result = first.x * second.x + first.y * second.y;
+        T result = first.x * second.x + first.y * second.y;
         return result;
     }
 
-    precision_type angle(const vec2& first, const vec2& second)
+    template<typename T>
+    float angle(const vec2<T>& first, const vec2<T>& second)
     {
-        precision_type angleCos = dot(first, second) / (first.magnitude() * second.magnitude());
+        float angleCos = dot(first, second) / (first.magnitude() * second.magnitude());
         return acos(angleCos);
     }
 
     // vec3
-    precision_type dot(const vec3& first, const vec3& second)
+    template<typename T>
+    T dot(const vec3<T>& first, const vec3<T>& second)
     {
-        precision_type result = first.x * second.x + first.y * second.y + first.z * second.z;
+        T result = first.x * second.x + first.y * second.y + first.z * second.z;
         return result;
     }
 
-    precision_type angle(const vec3& first, const vec3& second)
+    template<typename T>
+    float angle(const vec3<T>& first, const vec3<T>& second)
     {
-        precision_type angleCos = dot(first, second) / (first.magnitude() * second.magnitude());
+        float angleCos = dot(first, second) / (first.magnitude() * second.magnitude());
         return acos(angleCos);
     }
 
     // vec4
-    precision_type dot(const vec4& first, const vec4& second)
+    template<typename T>
+    float dot(const vec4<T>& first, const vec4<T>& second)
     {
-        precision_type result = first.x * second.x + first.y * second.y + first.z * second.z + first.w * second.w;
+        float result = first.x * second.x + first.y * second.y + first.z * second.z + first.w * second.w;
         return result;
     }
 
-    precision_type angle(const vec4& first, const vec4& second)
+    template<typename T>
+    float angle(const vec4<T>& first, const vec4<T>& second)
     {
-        precision_type angleCos = dot(first, second) / (first.magnitude() * second.magnitude());
+        float angleCos = dot(first, second) / (first.magnitude() * second.magnitude());
         return acos(angleCos);
     }
 
@@ -1127,7 +1125,8 @@ namespace gem {
         union
         {
             precision_type elements[4 * 4];
-            vec4 columns[4];
+            // TEMP -> template
+            vec4<float> columns[4];
         };
 
         mat4()
@@ -1317,7 +1316,7 @@ namespace gem {
             return *this;
         }
 
-        mat4 invert() const
+        mat4 inverse() const
         {
             mat4 mat = mat4::inverse(*this);
             return mat;
@@ -1376,7 +1375,8 @@ namespace gem {
             return result;
         }
 
-        static mat4 translate(const vec3& translation)
+        template<typename T>
+        static mat4 translate(const vec3<T>& translation)
         {
             mat4 result(1.0f);
             result.elements[3 + 0 * 4] = translation.x;
@@ -1386,7 +1386,8 @@ namespace gem {
             return result;
         }
 
-        static mat4 rotation(const vec3& axis, precision_type angle)
+        template<typename T>
+        static mat4 rotation(const vec3<T>& axis, float angle)
         {
             mat4 result(1.0f);
 
@@ -1414,7 +1415,8 @@ namespace gem {
             return result;
         }
 
-        static mat4 scale(const vec3& scale)
+        template<typename T>
+        static mat4 scale(const vec3<T>& scale)
         {
             mat4 result(1.0f);
             result.elements[0 + 0 * 4] = scale.x;
@@ -1458,34 +1460,36 @@ namespace gem {
             this->w = w;
         }
 
-        quaternion(const vec3& axis, precision_type angle)
+        template<typename T>
+        quaternion(const vec3<T>& axis, float angle)
         {
             // Calculate the sine and cosine of half the angle
             float sin_half_angle = sin(angle * 0.5f);
             float cos_half_angle = cos(angle * 0.5f);
 
             // Create a normalized quaternion from the axis of rotation and half-angle
-            vec3 normalized_axis = axis.normalized();
+            vec3<T> normalized_axis = axis.normalized();
             this->x = normalized_axis.x * sin_half_angle;
             this->y = normalized_axis.y * sin_half_angle;
             this->z = normalized_axis.z * sin_half_angle;
             this->w = cos_half_angle;
         }
 
-        quaternion(const vec3& euler_angles)
+        template<typename T>
+        quaternion(const vec3<T>& euler_angles)
         {
             // Compute half angles
-            precision_type hx = euler_angles.x * 0.5f;
-            precision_type hy = euler_angles.y * 0.5f;
-            precision_type hz = euler_angles.z * 0.5f;
+            float hx = euler_angles.x * 0.5f;
+            float hy = euler_angles.y * 0.5f;
+            float hz = euler_angles.z * 0.5f;
 
             // Compute sin and cos of half angles
-            precision_type cx = cos(hx);
-            precision_type cy = cos(hy);
-            precision_type cz = cos(hz);
-            precision_type sx = sin(hx);
-            precision_type sy = sin(hy);
-            precision_type sz = sin(hz);
+            float cx = cos(hx);
+            float cy = cos(hy);
+            float cz = cos(hz);
+            float sx = sin(hx);
+            float sy = sin(hy);
+            float sz = sin(hz);
 
             // Compute the quaternion components
             this->x = sx * cy * cz - cx * sy * sz;
@@ -1494,20 +1498,21 @@ namespace gem {
             this->w = cx * cy * cz + sx * sy * sz;
         }
 
-        static quaternion from_euler_angles(const vec3& euler_angles)
+        template<typename T>
+        static quaternion from_euler_angles(const vec3<T>& euler_angles)
         {
             // Compute half angles
-            precision_type hx = euler_angles.x * 0.5f;
-            precision_type hy = euler_angles.y * 0.5f;
-            precision_type hz = euler_angles.z * 0.5f;
+            float hx = euler_angles.x * 0.5f;
+            float hy = euler_angles.y * 0.5f;
+            float hz = euler_angles.z * 0.5f;
 
             // Compute sin and cos of half angles
-            precision_type cx = cos(hx);
-            precision_type cy = cos(hy);
-            precision_type cz = cos(hz);
-            precision_type sx = sin(hx);
-            precision_type sy = sin(hy);
-            precision_type sz = sin(hz);
+            float cx = cos(hx);
+            float cy = cos(hy);
+            float cz = cos(hz);
+            float sx = sin(hx);
+            float sy = sin(hy);
+            float sz = sin(hz);
 
             quaternion q;
             // Compute the quaternion components
@@ -1605,7 +1610,7 @@ namespace gem {
 
         quaternion conjugated() const
         {
-            return quaternion(w, -x, -y, -z);
+            return quaternion(-x, -y, -z, w);
         }
 
         mat4 to_mat4() const
@@ -1615,21 +1620,21 @@ namespace gem {
             q.normalize();
 
             // Extract the components of the quaternion
-            precision_type x = q.x;
-            precision_type y = q.y;
-            precision_type z = q.z;
-            precision_type w = q.w;
+            float x = q.x;
+            float y = q.y;
+            float z = q.z;
+            float w = q.w;
 
             // Compute the elements of the matrix
-            precision_type xx = x * x;
-            precision_type xy = x * y;
-            precision_type xz = x * z;
-            precision_type xw = x * w;
-            precision_type yy = y * y;
-            precision_type yz = y * z;
-            precision_type yw = y * w;
-            precision_type zz = z * z;
-            precision_type zw = z * w;
+            float xx = x * x;
+            float xy = x * y;
+            float xz = x * z;
+            float xw = x * w;
+            float yy = y * y;
+            float yz = y * z;
+            float yw = y * w;
+            float zz = z * z;
+            float zw = z * w;
 
             // Construct the matrix
             mat4 mat(1.0f);
@@ -1646,8 +1651,10 @@ namespace gem {
             return mat;
         }
 
-        vec3 to_euler_angles() const {
-            vec3 euler;
+        template<typename T>
+        vec3<T> to_euler_angles() const 
+        {
+            vec3<T> euler;
 
             // roll (x-axis rotation)
             float sinr_cosp = 2.0f * (w * x + y * z);
