@@ -50,13 +50,13 @@ int main()
     std::cout << "MAT4 ==============" << std::endl;
     {
         // mat4 test
-        gem::mat4 ortho_camera = gem::mat4::orthographic(-1.6f, 1.6f, -0.9f, 0.9f);
-        gem::mat4 perspective_camera = gem::mat4::perspective(60.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+        gem::mat4 ortho_camera = gem::mat4<float>::orthographic(-1.6f, 1.6f, -0.9f, 0.9f);
+        gem::mat4 perspective_camera = gem::mat4<float>::perspective(60.0f, 16.0f / 9.0f, 0.1f, 100.0f);
 
-        gem::mat4 scale = gem::mat4::scale<float>({2.5f, 3.0f, 4.0f});
+        gem::mat4 scale = gem::mat4<float>::scale({2.5f, 3.0f, 4.0f});
         std::cout << ortho_camera << std::endl << std::endl;
 
-        gem::mat4 i = gem::mat4::translate<float>({1.0f, 2.5f, -3.0f});
+        gem::mat4 i = gem::mat4<float>::translate<float>({1.0f, 2.5f, -3.0f});
         std::cout << i << std::endl << std::endl;
         std::cout << i.inverse() << std::endl << std::endl;
         i.invert();
@@ -76,7 +76,7 @@ int main()
         gem::quaternion q = gem::quaternion::from_euler_angles(euler_angles);
         std::cout << q << std::endl;
 
-        gem::mat4 mat = q.to_mat4();
+        gem::mat4 mat = q.to_mat4<float>();
         std::cout << mat << std::endl;
     }
 #endif

@@ -63,7 +63,7 @@ namespace gem {
         return radians * GEM_RAD_TO_DEG;
     }
 
-    precision_type inverse(precision_type val)
+    float inverse(float val)
     {
         return 1 / val;
     }
@@ -1119,27 +1119,28 @@ namespace gem {
     // Matrices
     // mat4
     // 4x4 matrix
+    template<typename T>
     struct mat4
     {
         // Data
         union
         {
-            precision_type elements[4 * 4];
+            T elements[4 * 4];
             // TEMP -> template
-            vec4<float> columns[4];
+            vec4<T> columns[4];
         };
 
         mat4()
         {
             for (int32 i = 0; i < 4 * 4; i++)
-                elements[i] = 0.0f;
+                elements[i] = T{};
         }
 
-        mat4(precision_type diagonal)
+        mat4(T diagonal)
         {
             // Initialize all elements to 0
             for (int32 i = 0; i < 4 * 4; i++)
-                elements[i] = 0.0f;
+                elements[i] = T{};
 
             // Set the diagonal
             elements[0 + 0 * 4] = diagonal;
@@ -1148,18 +1149,18 @@ namespace gem {
             elements[3 + 3 * 4] = diagonal;
         }
 
-        static mat4 identiy()
+        static mat4<T> identiy()
         {
-            return mat4(1.0f);
+            return mat4<T>(static_cast<T>(1));
         }
 
-        mat4& multiply(const mat4& other)
+        mat4<T>& multiply(const mat4<T>& other)
         {
             for (int32 y = 0; y < 4; y++)
             {
                 for (int32 x = 0; x < 4; x++)
                 {
-                    float sum = 0.0f;
+                    T sum = static_cast<T>(1);
                     for (int32 e = 0; e < 4; e++)
                     {
                         sum += elements[x + e * 4] * other.elements[e + y * 4];
@@ -1171,15 +1172,15 @@ namespace gem {
             return *this;
         }
 
-        precision_type determinant() const
+        float determinant() const
         {
-            precision_type a = elements[0], b = elements[1], c = elements[2], d = elements[3];
-            precision_type e = elements[4], f = elements[5], g = elements[6], h = elements[7];
-            precision_type i = elements[8], j = elements[9], k = elements[10], l = elements[11];
-            precision_type m = elements[12], n = elements[13], o = elements[14], p = elements[15];
+            float a = elements[0], b = elements[1], c = elements[2], d = elements[3];
+            float e = elements[4], f = elements[5], g = elements[6], h = elements[7];
+            float i = elements[8], j = elements[9], k = elements[10], l = elements[11];
+            float m = elements[12], n = elements[13], o = elements[14], p = elements[15];
 
-            precision_type det = 
-                a * f * k * p + a * g * l * n + a * h * j * o
+            float det = 
+                  a * f * k * p + a * g * l * n + a * h * j * o
                 - a * f * l * o - a * g * j * p - a * h * k * n
                 - b * e * k * p - b * g * l * m - b * h * i * o
                 + b * e * l * o + b * g * i * p + b * h * k * m
@@ -1191,9 +1192,9 @@ namespace gem {
             return det;
         }
 
-        mat4& invert() // From sparky engine
+        mat4<T>& invert() // From sparky engine
         {
-            float temp[16];
+            T temp[16];
 
             temp[0] = elements[5] * elements[10] * elements[15] -
                 elements[5] * elements[11] * elements[14] -
@@ -1308,7 +1309,7 @@ namespace gem {
                 elements[8] * elements[2] * elements[5];
 
             float determinant = elements[0] * temp[0] + elements[1] * temp[4] + elements[2] * temp[8] + elements[3] * temp[12];
-            determinant = 1.0f / determinant;
+            determinant = ::gem::inverse(determinant);
 
             for (int32 i = 0; i < 4 * 4; i++)
                 elements[i] = temp[i] * determinant;
@@ -1316,35 +1317,36 @@ namespace gem {
             return *this;
         }
 
-        mat4 inverse() const
+        mat4<T> inverse() const
         {
-            mat4 mat = mat4::inverse(*this);
+            mat4<T> mat = mat4::inverse(*this);
             return mat;
         }
 
-        static mat4 inverse(const mat4& mat)
+        static mat4<T> inverse(const mat4<T>& mat)
         {
-            mat4 result = mat;
+            mat4<T> result = mat;
             result.invert();
             return result;
         }
 
-        mat4& operator*(const mat4& other)
+        // Operators
+        friend mat4<T>& operator*(mat4<T> left, const mat4<T>& right)
         {
-            this->multiply(other);
-            return *this;
+            left.multiply(right);
+            return left;
         }
 
-        mat4& operator*=(const mat4& other)
+        mat4<T>& operator*=(const mat4<T>& other)
         {
             this->multiply(other);
             return *this;
         }
 
         // Templates
-        static mat4 orthographic(precision_type left, precision_type right, precision_type bottom, precision_type top, precision_type near = -1.0f, precision_type far = 1.0f)
+        static mat4<float> orthographic(float left, float right, float bottom, float top, float near = -1.0f, float far = 1.0f)
         {
-            mat4 result(1.0f);
+            mat4<float> result(1.0f);
             result.elements[0 + 0 * 4] = 2 / (right - left);
             result.elements[1 + 1 * 4] = 2 / (top - bottom);
             result.elements[2 + 2 * 4] = -2 / (far - near);
@@ -1357,17 +1359,17 @@ namespace gem {
         }
 
         // FOV in degrees
-        static mat4 perspective(precision_type fov, precision_type aspect_ratio, precision_type zNear, precision_type zFar)
+        static mat4<float> perspective(float fov, float aspect_ratio, float zNear, float zFar)
         {
-            precision_type a = aspect_ratio * tan(to_radians(fov * 0.5f));
-            precision_type b = tan(to_radians(fov * 0.5f));
+            float a = aspect_ratio * tan(to_radians(fov * 0.5f));
+            float b = tan(to_radians(fov * 0.5f));
 
-            precision_type c = (-zNear - zFar) / (zNear - zFar);
-            precision_type d = (2 * zNear * zFar) / (zNear - zFar);
+            float c = (-zNear - zFar) / (zNear - zFar);
+            float d = (2 * zNear * zFar) / (zNear - zFar);
 
-            mat4 result(0.0f);
-            result.elements[0 + 0 * 4] = gem::inverse(a);
-            result.elements[1 + 1 * 4] = gem::inverse(b);
+            mat4<float> result(0.0f);
+            result.elements[0 + 0 * 4] = ::gem::inverse(a);
+            result.elements[1 + 1 * 4] = ::gem::inverse(b);
             result.elements[2 + 2 * 4] = c;
             result.elements[3 + 2 * 4] = d;
             result.elements[2 + 3 * 4] = 1.0f;
@@ -1375,10 +1377,10 @@ namespace gem {
             return result;
         }
 
-        template<typename T>
-        static mat4 translate(const vec3<T>& translation)
+        template<typename Type>
+        static mat4<Type> translate(const vec3<Type>& translation)
         {
-            mat4 result(1.0f);
+            mat4<Type> result(1.0f);
             result.elements[3 + 0 * 4] = translation.x;
             result.elements[3 + 1 * 4] = translation.y;
             result.elements[3 + 2 * 4] = translation.z;
@@ -1386,10 +1388,10 @@ namespace gem {
             return result;
         }
 
-        template<typename T>
-        static mat4 rotation(const vec3<T>& axis, float angle)
+        template<typename Type>
+        static mat4<Type> rotation(const vec3<Type>& axis, float angle)
         {
-            mat4 result(1.0f);
+            mat4<Type> result(static_cast<Type>(1));
 
             float r = to_radians(angle);
             float c = cos(r);
@@ -1415,10 +1417,9 @@ namespace gem {
             return result;
         }
 
-        template<typename T>
-        static mat4 scale(const vec3<T>& scale)
+        static mat4<float> scale(const vec3<float>& scale)
         {
-            mat4 result(1.0f);
+            mat4<float> result(1.0f);
             result.elements[0 + 0 * 4] = scale.x;
             result.elements[1 + 1 * 4] = scale.y;
             result.elements[2 + 2 * 4] = scale.z;
@@ -1431,7 +1432,7 @@ namespace gem {
             return std::format("{}\n{}\n{}\n{}", columns[0].to_string(), columns[1].to_string(), columns[2].to_string(), columns[3].to_string());
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const mat4& mat)
+        friend std::ostream& operator<<(std::ostream& os, const mat4<T>& mat)
         {
             os << mat.to_string();
             return os;
@@ -1498,8 +1499,8 @@ namespace gem {
             this->w = cx * cy * cz + sx * sy * sz;
         }
 
-        template<typename T>
-        static quaternion from_euler_angles(const vec3<T>& euler_angles)
+        template<typename Type>
+        static quaternion from_euler_angles(const vec3<Type>& euler_angles)
         {
             // Compute half angles
             float hx = euler_angles.x * 0.5f;
@@ -1613,7 +1614,8 @@ namespace gem {
             return quaternion(-x, -y, -z, w);
         }
 
-        mat4 to_mat4() const
+        template<typename Type>
+        mat4<Type> to_mat4() const
         {
             // Normalize the quaternion first
             quaternion q = *this;
@@ -1637,7 +1639,7 @@ namespace gem {
             float zw = z * w;
 
             // Construct the matrix
-            mat4 mat(1.0f);
+            mat4<Type> mat(1.0f);
             mat.elements[0 + 0 * 4] = 1 - 2 * (yy + zz);
             mat.elements[0 + 1 * 4] = 2 * (xy - zw);
             mat.elements[0 + 2 * 4] = 2 * (xz + yw);
@@ -1651,10 +1653,10 @@ namespace gem {
             return mat;
         }
 
-        template<typename T>
-        vec3<T> to_euler_angles() const 
+        template<typename Type>
+        vec3<Type> to_euler_angles() const 
         {
-            vec3<T> euler;
+            vec3<Type> euler;
 
             // roll (x-axis rotation)
             float sinr_cosp = 2.0f * (w * x + y * z);
