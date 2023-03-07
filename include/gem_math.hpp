@@ -1441,19 +1441,20 @@ namespace gem {
     }; // mat4
 
     // Quaternions
+    template<typename T>
     struct quaternion
     {
-        precision_type x, y, z, w;
+        T x, y, z, w;
         
         quaternion()
         {
-            x = 0.0f;
-            y = 0.0f;
-            z = 0.0f;
-            w = 0.0f;
+            x = T{};
+            y = T{};
+            z = T{};
+            w = T{};
         }
 
-        quaternion(precision_type x, precision_type y, precision_type z, precision_type w)
+        quaternion(T x, T y, T z, T w)
         {
             this->x = x;
             this->y = y;
@@ -1461,7 +1462,6 @@ namespace gem {
             this->w = w;
         }
 
-        template<typename T>
         quaternion(const vec3<T>& axis, float angle)
         {
             // Calculate the sine and cosine of half the angle
@@ -1476,7 +1476,6 @@ namespace gem {
             this->w = cos_half_angle;
         }
 
-        template<typename T>
         quaternion(const vec3<T>& euler_angles)
         {
             // Compute half angles
@@ -1499,8 +1498,7 @@ namespace gem {
             this->w = cx * cy * cz + sx * sy * sz;
         }
 
-        template<typename Type>
-        static quaternion from_euler_angles(const vec3<Type>& euler_angles)
+        static quaternion<T> from_euler_angles(const vec3<T>& euler_angles)
         {
             // Compute half angles
             float hx = euler_angles.x * 0.5f;
@@ -1515,7 +1513,7 @@ namespace gem {
             float sy = sin(hy);
             float sz = sin(hz);
 
-            quaternion q;
+            quaternion<T> q;
             // Compute the quaternion components
             q.x = sx * cy * cz - cx * sy * sz;
             q.y = cx * sy * cz + sx * cy * sz;
@@ -1524,25 +1522,25 @@ namespace gem {
             return q;
         }
 
-        static const quaternion RotationX(precision_type radians)
+        static const quaternion<T> RotationX(float radians)
         {
             float angle = radians * 0.5f;
-            return quaternion(sin(angle), 0.0f, 0.0f, cos(angle));
+            return quaternion<T>(sin(angle), 0.0f, 0.0f, cos(angle));
         }
 
-        static const quaternion RotationY(precision_type radians)
+        static const quaternion<T> RotationY(float radians)
         {
             float angle = radians * 0.5f;
-            return quaternion(0.0f, sin(angle), 0.0f, cos(angle));
+            return quaternion<T>(0.0f, sin(angle), 0.0f, cos(angle));
         }
 
-        static const quaternion RotationZ(precision_type radians)
+        static const quaternion<T> RotationZ(float radians)
         {
             float angle = radians * 0.5f;
-            return quaternion(0.0f, 0.0f, sin(angle), cos(angle));
+            return quaternion<T>(0.0f, 0.0f, sin(angle), cos(angle));
         }
 
-        quaternion& add(const quaternion& other)
+        quaternion<T>& add(const quaternion<T>& other)
         {
             this->x += other.x;
             this->y += other.y;
@@ -1551,7 +1549,7 @@ namespace gem {
             return *this;
         }
 
-        quaternion& substract(const quaternion& other)
+        quaternion<T>& substract(const quaternion<T>& other)
         {
             this->x -= other.x;
             this->y -= other.y;
@@ -1560,7 +1558,7 @@ namespace gem {
             return *this;
         }
 
-        quaternion& multiply(const quaternion& other)
+        quaternion<T>& multiply(const quaternion<T>& other)
         {
             this->x = x * other.x - y * other.y - z * other.z - w * other.w;
             this->y = y * other.x + x * other.y - w * other.z + z * other.w;
@@ -1570,18 +1568,18 @@ namespace gem {
             return *this;
         }
 
-        precision_type magnitude() const
+        float magnitude() const
         {
             return sqrt(x * x + y * y + z * z + w * w);
         }
 
         // Normalize the quaternion
-        quaternion& normalize()
+        quaternion<T>& normalize()
         {
-            precision_type mag = magnitude();
+            float mag = magnitude();
             if (mag > 0.0f)
             {
-                precision_type inverse_magnitude = inverse(mag);
+                float inverse_magnitude = inverse(mag);
                 x *= inverse_magnitude;
                 y *= inverse_magnitude;
                 z *= inverse_magnitude;
@@ -1591,16 +1589,16 @@ namespace gem {
             return *this;
         }
 
-        quaternion normalized() const
+        quaternion<T> normalized() const
         {
-            precision_type mag = magnitude();
-            quaternion q(this->x, this->y, this->z, this->w);
+            float mag = magnitude();
+            quaternion<T> q(this->x, this->y, this->z, this->w);
             q.normalize();
 
             return q;
         }
 
-        quaternion& conjugate()
+        quaternion<T>& conjugate()
         {
             x = -x;
             y = -y;
@@ -1609,16 +1607,15 @@ namespace gem {
             return *this;
         }
 
-        quaternion conjugated() const
+        quaternion<T> conjugated() const
         {
-            return quaternion(-x, -y, -z, w);
+            return quaternion<T>(-x, -y, -z, w);
         }
 
-        template<typename Type>
-        mat4<Type> to_mat4() const
+        mat4<T> to_mat4() const
         {
             // Normalize the quaternion first
-            quaternion q = *this;
+            quaternion<T> q = *this;
             q.normalize();
 
             // Extract the components of the quaternion
@@ -1639,7 +1636,7 @@ namespace gem {
             float zw = z * w;
 
             // Construct the matrix
-            mat4<Type> mat(1.0f);
+            mat4<T> mat(1.0f);
             mat.elements[0 + 0 * 4] = 1 - 2 * (yy + zz);
             mat.elements[0 + 1 * 4] = 2 * (xy - zw);
             mat.elements[0 + 2 * 4] = 2 * (xz + yw);
@@ -1653,10 +1650,9 @@ namespace gem {
             return mat;
         }
 
-        template<typename Type>
-        vec3<Type> to_euler_angles() const 
+        vec3<T> to_euler_angles() const 
         {
-            vec3<Type> euler;
+            vec3<T> euler;
 
             // roll (x-axis rotation)
             float sinr_cosp = 2.0f * (w * x + y * z);
@@ -1680,18 +1676,18 @@ namespace gem {
         }
 
         // Operators
-        friend quaternion operator+(quaternion left, const quaternion& right)
+        friend quaternion<T> operator+(quaternion<T> left, const quaternion<T>& right)
         {
             return left.add(right);
         }
 
 
-        friend quaternion operator-(quaternion left, const quaternion& right)
+        friend quaternion<T> operator-(quaternion<T> left, const quaternion<T>& right)
         {
             return left.substract(right);
         }
 
-        friend quaternion operator*(quaternion left, const quaternion& right)
+        friend quaternion<T> operator*(quaternion left, const quaternion<T>& right)
         {
             return left.multiply(right);
         }
@@ -1701,7 +1697,7 @@ namespace gem {
             return std::format("({}, {}, {}, {})", this->x, this->y, this->z, this->w);
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const quaternion& quat)
+        friend std::ostream& operator<<(std::ostream& os, const quaternion<T>& quat)
         {
             os << quat.to_string();
             return os;

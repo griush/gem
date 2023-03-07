@@ -73,10 +73,10 @@ int main()
     std::cout << "QUATERNIONS ==============" << std::endl;
     {
         gem::vec3 euler_angles(0.0f, gem::to_radians(90.0f), 0.0f);
-        gem::quaternion q = gem::quaternion::from_euler_angles(euler_angles);
+        gem::quaternion q = gem::quaternion<float>::from_euler_angles(euler_angles);
         std::cout << q << std::endl;
 
-        gem::mat4 mat = q.to_mat4<float>();
+        gem::mat4 mat = q.to_mat4();
         std::cout << mat << std::endl;
     }
 #endif
